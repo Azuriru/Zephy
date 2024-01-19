@@ -1,0 +1,41 @@
+{
+	"name": "noe",
+	"version": "1.0.0",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@fortawesome/fontawesome-free": "^6.4.2",
+		"@sveltejs/adapter-vercel": "^4.0.0",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
+		"@typescript-eslint/eslint-plugin": "^6.18.1",
+		"@typescript-eslint/parser": "^6.18.1",
+		"assertmin": "^0.3.5",
+		"autoprefixer": "^10.4.14",
+		"eslint": "^8.56.0",
+		"eslint-config-standard-with-typescript": "^43.0.0",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-n": "^16.6.2",
+		"eslint-plugin-promise": "^6.1.1",
+		"postcss": "^8.4.24",
+		"postcss-load-config": "^4.0.1",
+		"postcss-selector-matches": "^4.0.0",
+		"sass": "^1.69.3",
+		"svelte": "^4.2.5",
+		"svelte-check": "^3.4.3",
+		"sveltekit-i18n": "^2.4.2",
+		"tslib": "^2.4.1",
+		"typescript": "^5.2.2",
+		"vite": "^5.0.0"
+	},
+	"type": "module",
+	"dependencies": {
+		"eslint-plugin-svelte": "^2.35.1"
+	}
+}

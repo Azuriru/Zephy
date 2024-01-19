@@ -1,0 +1,18 @@
+{
+    "food": [
+        {
+            "value": "apple"
+        },
+        {
+            "value": "orange"
+        },
+        {
+            "value": "egg"
+        }
+    ],
+    "supplies": [
+        {
+            "value": "dish soap"
+        }
+    ]
+}

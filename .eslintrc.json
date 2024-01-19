@@ -1,0 +1,147 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:svelte/base",
+        "plugin:svelte/recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json",
+        "ecmaVersion": "latest",
+        "sourceType": "module",
+        "extraFileExtensions": [
+            ".svelte"
+        ]
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "overrides": [
+        {
+            "files": [
+                "*.svelte"
+            ],
+            "parser": "svelte-eslint-parser",
+            "parserOptions": {
+                "parser": "@typescript-eslint/parser"
+            },
+            "rules": {
+                "svelte/indent": "error",
+                "indent": "off"
+            }
+        }
+    ],
+    "rules": {
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "caughtErrorsIgnorePattern": "^_"
+            }
+        ],
+        "@typescript-eslint/no-explicit-any": "off",
+        "no-unused-vars": "off",
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "svelte/block-lang": [
+            "error",
+            {
+                "enforceScriptPresent": false,
+                "enforceStylePresent": false,
+                "script": "ts",
+                "style": "scss"
+            }
+        ],
+        "svelte/no-immutable-reactive-statements": "error",
+        "svelte/no-reactive-functions": "error",
+        "svelte/no-reactive-literals": "error",
+        // "svelte/require-each-key": "error",
+        "svelte/valid-each-key": "error",
+        "svelte/html-closing-bracket-spacing": "error",
+        "svelte/html-quotes": [
+            "error",
+            {
+                "prefer": "double",
+                "dynamic": {
+                    "quoted": false,
+                    "avoidInvalidUnquotedInHTML": false
+                }
+            }
+        ],
+        "svelte/indent": [
+            "error",
+            {
+                "indent": 4,
+                "ignoredNodes": [],
+                "switchCase": 1,
+                "alignAttributesVertically": false
+            }
+        ],
+        "svelte/no-spaces-around-equal-signs-in-attribute": "error",
+        "svelte/mustache-spacing": [
+            "error",
+            {
+                "textExpressions": "never",
+                "attributesAndProps": "never",
+                "directiveExpressions": "never",
+                "tags": {
+                    "openingBrace": "never",
+                    "closingBrace": "never"
+                }
+            }
+        ],
+        "svelte/no-extra-reactive-curlies": "error",
+        "svelte/first-attribute-linebreak": [
+            "error",
+            {
+                "multiline": "below",
+                "singleline": "beside"
+            }
+        ]
+    },
+    "settings": {
+        "svelte": {
+            "ignoreWarnings": [
+                "@typescript-eslint/no-unsafe-assignment",
+                "@typescript-eslint/no-unsafe-member-access"
+            ],
+            "compileOptions": {
+                "postcss": {
+                    "configFilePath": "postcss.config.js"
+                }
+            },
+            "kit": {
+                "files": {
+                    "routes": "src/routes"
+                }
+            }
+        }
+    },
+    "ignorePatterns": [
+        "node_modules/",
+        "build/",
+        "dist/",
+        "old_src/",
+        "*.config.js",
+        "*.config.ts"
+    ]
+}
