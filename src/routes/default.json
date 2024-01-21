@@ -1,18 +1,24 @@
-{
-    "food": [
-        {
-            "value": "apple"
-        },
-        {
-            "value": "orange"
-        },
-        {
-            "value": "egg"
-        }
-    ],
-    "supplies": [
-        {
-            "value": "dish soap"
-        }
-    ]
-}
+[
+    {
+        "name": "food",
+        "items": [
+            {
+                "value": "apple"
+            },
+            {
+                "value": "orange"
+            },
+            {
+                "value": "egg"
+            }
+        ]
+    },
+    {
+        "name": "supplies",
+        "items": [
+            {
+                "value": "dish soap"
+            }
+        ]
+    }
+]
