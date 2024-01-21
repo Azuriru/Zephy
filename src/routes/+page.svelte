@@ -2,16 +2,19 @@
     import { localStorageCentralized } from '$lib/util/store';
     import sample from './default.json';
 
-    type Items = Record<string, {
+    type Item = {
         value: string;
         checked?: boolean;
-    }[]>;
-    let items = localStorageCentralized<Items>('list', sample);
+        timestamp?: number;
+    };
 
-    // for dev
-    for (const x of Object.keys($items || {})) {
-        console.log($items[x]);
+    type Group = {
+        name: string;
+        items: Item[]
     }
+
+    type List = Group[];
+    let list = localStorageCentralized<List>('list', sample);
 
     // function onpaste(e: ClipboardEvent) {
     //     e.preventDefault();
@@ -27,7 +30,7 @@
     //     }
     // }
 
-    function onKeyDown(e: KeyboardEvent) {
+    function _onKeyDown(e: KeyboardEvent) {
         const selection = window.getSelection();
 
         switch(e.key) {
@@ -44,21 +47,106 @@
                 break;
         }
     }
+
+    function formatTimestamp(timestamp: number | undefined) {
+        if (!timestamp) {
+            return 'unknown';
+        }
+
+        const d = new Date(timestamp);
+        const h = d.getHours();
+        const m = d.getMinutes();
+        const s = d.getSeconds();
+
+        const date = d.getDate();
+        const month = d.getMonth();
+        const year = d.getFullYear();
+
+        const pad = (number: number) => number.toString().padStart(2, '0');
+
+        return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(month + 1)}/${year}`;
+    }
+
+    function onChange(group: number, index: number) {
+        const item = $list[group].items[index]
+
+        if (item.checked) {
+            item.timestamp = Date.now();
+        }
+
+        $list = $list;
+    }
+
+    function uncheckAll() {
+        // for (const group in $list) {
+        //     for (const item of $list[group]) {
+        //         item.checked = false;
+        //     }
+        // }
+        $list = $list;
+    }
+
+    function clear() {
+        localStorage.removeItem('persistibles');
+    }
+
+    console.log($list);
 </script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div class="list" contenteditable="true" on:keydown={onKeyDown}>
-    {#if $items}
-        {#each Object.keys($items) as group}
-            <div class="group">
-                Group: {group}
-                {#each $items[group] as { value, checked }}
-                    <div class="item">
-                        <input type="checkbox" bind:checked={checked}>
-                        {value}
-                    </div>
+<div class="list">
+    {#if $list}
+        {#each $list as group, groupIndex}
+            {@const { name, items } = group}
+            <div class="list-group">
+                <div class="list-header">Group: {name}</div>
+                {#each items as { checked, value, timestamp }, itemIndex}
+                    <label class="list-item">
+                        <input class="list-checkbox" type="checkbox" bind:checked={checked} on:change={() => onChange(groupIndex, itemIndex)}>
+                        <div class="list-item-info">
+                            <span class="list-item-name">{value}</span>
+                            <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
+                        </div>
+                    </label>
                 {/each}
             </div>
         {/each}
     {/if}
+    <button on:click={uncheckAll}>uncheck all</button>
+    <button on:click={clear}>clear all</button>
 </div>
+
+<style lang="scss">
+    .list {
+        padding: 40px 80px;
+    }
+
+    .list,
+    .list-group,
+    .list-item-info  {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .list-group {
+        margin-bottom: 20px;
+    }
+
+    .list-header {
+        margin-bottom: 10px;
+    }
+
+    .list-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+
+        .list-item-name {
+            text-transform: capitalize;
+        }
+
+        .list-item-timestamp {
+            font-size: 12px;
+            color: #848484;
+        }
+    }
+</style>
