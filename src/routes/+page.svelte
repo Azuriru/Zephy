@@ -78,11 +78,11 @@
     }
 
     function uncheckAll() {
-        // for (const group in $list) {
-        //     for (const item of $list[group]) {
-        //         item.checked = false;
-        //     }
-        // }
+        for (const [ groupIndex ] of $list.entries()) {
+            for (const item of $list[groupIndex].items) {
+                item.checked = false;
+            }
+        }
         $list = $list;
     }
 
@@ -95,13 +95,14 @@
 
 <div class="list">
     {#if $list}
-        {#each $list as group, groupIndex}
+        {#each $list as group, groupIndex (group)}
             {@const { name, items } = group}
             <div class="list-group">
                 <div class="list-header">Group: {name}</div>
-                {#each items as { checked, value, timestamp }, itemIndex}
+                {#each items as { checked, value, timestamp }, itemIndex (value)}
                     <label class="list-item">
-                        <input class="list-checkbox" type="checkbox" bind:checked={checked} on:change={() => onChange(groupIndex, itemIndex)}>
+                        <input type="checkbox" bind:checked={checked} on:change={() => onChange(groupIndex, itemIndex)}>
+                        <div class="list-checkbox" />
                         <div class="list-item-info">
                             <span class="list-item-name">{value}</span>
                             <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
@@ -139,6 +140,22 @@
         display: flex;
         align-items: center;
         padding: 12px 0;
+
+        input {
+            appearance: none;
+
+            & + .list-checkbox {
+                width: 40px;
+                height: 40px;
+                background: white;
+                margin-right: 8px;
+            }
+            &:checked + .list-checkbox {
+                width: 40px;
+                height: 40px;
+                background: red;
+            }
+        }
 
         .list-item-name {
             text-transform: capitalize;
