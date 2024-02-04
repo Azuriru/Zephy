@@ -1,6 +1,8 @@
 <script lang="ts">
     import { localStorageCentralized } from '$lib/util/store';
+    import { FontAwesome } from '$lib/components';
     import sample from './default.json';
+    import { capitalize } from '$lib/util';
 
     type Item = {
         value: string;
@@ -50,7 +52,7 @@
 
     function formatTimestamp(timestamp: number | undefined) {
         if (!timestamp) {
-            return 'unknown';
+            return '';
         }
 
         const d = new Date(timestamp);
@@ -67,8 +69,8 @@
         return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(month + 1)}/${year}`;
     }
 
-    function onChange(group: number, index: number) {
-        const item = $list[group].items[index]
+    function onChange(groupIndex: number, itemIndex: number) {
+        const item = $list[groupIndex].items[itemIndex]
 
         if (item.checked) {
             item.timestamp = Date.now();
@@ -77,46 +79,154 @@
         $list = $list;
     }
 
-    function uncheckAll() {
-        for (const [ groupIndex ] of $list.entries()) {
-            for (const item of $list[groupIndex].items) {
-                item.checked = false;
-            }
+    function addItem(value: string, groupIndex: number) {
+        $list[groupIndex].items.push({ value });
+        $list = $list;
+    }
+
+    function removeItem(groupIndex: number, itemIndex: number) {
+        $list[groupIndex].items.splice(itemIndex, 1);
+        $list = $list;
+    }
+
+    function checkGroup(groupIndex: number) {
+        for (const item of $list[groupIndex].items) {
+            item.checked = true;
+            item.timestamp = Date.now();
         }
         $list = $list;
+    }
+
+    function checkAll() {
+        for (const [ groupIndex ] of $list.entries()) {
+            checkGroup(groupIndex);
+        }
+    }
+
+    function uncheckGroup(groupIndex: number) {
+        for (const item of $list[groupIndex].items) {
+            item.checked = false;
+        }
+        $list = $list;
+    }
+
+    function uncheckAll() {
+        for (const [ groupIndex ] of $list.entries()) {
+            uncheckGroup(groupIndex);
+        }
+    }
+
+    function findDuplicate(groupIndex: number, value: string) {
+        return $list[groupIndex].items.some((item: Item) => item.value === value);
+    }
+
+    function focusOut(e: FocusEvent, groupIndex: number) {
+        const { currentTarget } = e;
+        if (!(currentTarget instanceof HTMLElement)) return;
+
+        const items = currentTarget.innerText.split('\n');
+        currentTarget.innerText = '';
+
+        for (const item of items) {
+            const value = item.toLowerCase();
+            if (value && !findDuplicate(groupIndex, value)) {
+                addItem(value, groupIndex);
+            }
+            $list = $list;
+        }
     }
 
     function clear() {
         localStorage.removeItem('persistibles');
     }
-
-    console.log($list);
 </script>
 
 <div class="list">
+    <div class="list-options">
+        <button>
+            Add Group
+            <FontAwesome name="plus" />
+        </button>
+        <button on:click={uncheckAll}>
+            Uncheck all
+            <FontAwesome name="xmark" />
+        </button>
+        <button on:click={checkAll}>
+            Check all
+            <FontAwesome name="check" />
+        </button>
+    </div>
     {#if $list}
         {#each $list as group, groupIndex (group)}
             {@const { name, items } = group}
             <div class="list-group">
-                <div class="list-header">Group: {name}</div>
+                <div class="list-header">
+                    <span>Group: {capitalize(name)}</span>
+                    <div class="list-group-actions">
+                        <button on:click={() => uncheckGroup(groupIndex)}>
+                            Uncheck all
+                            <FontAwesome name="xmark" />
+                        </button>
+                        <button on:click={() => checkGroup(groupIndex)}>
+                            Check all
+                            <FontAwesome name="check" />
+                        </button>
+                    </div>
+                </div>
                 {#each items as { checked, value, timestamp }, itemIndex (value)}
                     <label class="list-item">
                         <input type="checkbox" bind:checked={checked} on:change={() => onChange(groupIndex, itemIndex)}>
-                        <div class="list-checkbox" />
+                        <div class="list-checkbox">
+                            {#if checked}
+                                <FontAwesome name="check" />
+                            {/if}
+                        </div>
                         <div class="list-item-info">
                             <span class="list-item-name">{value}</span>
                             <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
                         </div>
+                        <button class="list-item-remove" on:click={() => removeItem(groupIndex, itemIndex)}>
+                            <FontAwesome name="xmark" />
+                        </button>
                     </label>
                 {/each}
+                <div class="list-last" contenteditable="true" on:focusout={(e) => focusOut(e, groupIndex)} />
             </div>
         {/each}
     {/if}
-    <button on:click={uncheckAll}>uncheck all</button>
-    <button on:click={clear}>clear all</button>
+    <button on:click={clear}>Reset</button>
 </div>
 
 <style lang="scss">
+    @mixin flex {
+        display: flex;
+    }
+
+    @mixin flex-col {
+        flex-direction: column;
+    }
+
+    @mixin center-y {
+        @include flex;
+        align-items: center;
+    }
+
+    @mixin center-x {
+        @include flex;
+        justify-content: center;
+    }
+
+    @mixin center {
+        @include flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @mixin divide-evenly {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
     .list {
         padding: 40px 80px;
     }
@@ -128,11 +238,17 @@
         flex-direction: column;
     }
 
+    .list-options {
+        @include divide-evenly;
+        margin-bottom: 20px;
+    }
     .list-group {
         margin-bottom: 20px;
     }
 
     .list-header {
+        display: flex;
+        justify-content: space-between;
         margin-bottom: 10px;
     }
 
@@ -145,16 +261,17 @@
             appearance: none;
 
             & + .list-checkbox {
-                width: 40px;
-                height: 40px;
-                background: white;
+                @include center;
+                width: 20px;
+                height: 20px;
+                background: rgb(255, 255, 255, .1);
+                color: #34d399;
                 margin-right: 8px;
             }
-            &:checked + .list-checkbox {
-                width: 40px;
-                height: 40px;
-                background: red;
-            }
+        }
+
+        .list-item-info {
+            flex-grow: 1;
         }
 
         .list-item-name {
@@ -165,5 +282,16 @@
             font-size: 12px;
             color: #848484;
         }
+
+        .list-item-remove {
+            @include center;
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .list-last {
+        // background: blue;
+        margin-left: 28px;
     }
 </style>

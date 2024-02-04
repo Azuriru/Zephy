@@ -1,10 +1,10 @@
 <script lang="ts">
-    import '@fortawesome/fontawesome-free/css/fontawesome.css';
-    import '@fortawesome/fontawesome-free/css/brands.css';
-    import '@fortawesome/fontawesome-free/css/solid.css';
+    import '@fortawesome/fontawesome-free/css/all.min.css';
+    // import '@fortawesome/fontawesome-free/css/brands.css';
+    // import '@fortawesome/fontawesome-free/css/solid.css';
 
     export let name: string = 'font-awesome';
-    export let type: string = 'brands';
+    export let type: string = 'solid';
 </script>
 
 <i class="fa-{type} fa-{name} fa-fw"></i>
