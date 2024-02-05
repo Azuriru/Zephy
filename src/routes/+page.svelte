@@ -1,8 +1,8 @@
 <script lang="ts">
     import { localStorageCentralized } from '$lib/util/store';
     import { FontAwesome } from '$lib/components';
-    import sample from './default.json';
     import { capitalize } from '$lib/util';
+    import sample from './default.json';
 
     type Item = {
         value: string;
