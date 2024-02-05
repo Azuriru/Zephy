@@ -228,7 +228,7 @@
     }
 
     .list {
-        padding: 40px 80px;
+        padding: 40px;
     }
 
     .list,
