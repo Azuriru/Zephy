@@ -19,6 +19,7 @@
         ]
     },
     "plugins": [
+        "svelte-stylistic",
         "@typescript-eslint"
     ],
     "overrides": [
@@ -31,12 +32,13 @@
                 "parser": "@typescript-eslint/parser"
             },
             "rules": {
-                "svelte/indent": "error",
+                "svelte/indent": "warn",
                 "indent": "off"
             }
         }
     ],
     "rules": {
+        "svelte-stylistic/consistent-attribute-lines": "error",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {
@@ -48,22 +50,50 @@
         "@typescript-eslint/no-explicit-any": "off",
         "no-unused-vars": "off",
         "indent": [
-            "error",
+            "warn",
             4,
             {
                 "SwitchCase": 1
             }
         ],
         "linebreak-style": [
-            "error",
+            "warn",
             "windows"
         ],
         "quotes": [
-            "error",
+            "warn",
             "single"
         ],
+        // Possible errors
+        "svelte/infinite-reactive-loop": "warn",
+        "svelte/no-dom-manipulating": "warn",
+        "svelte/no-dupe-else-if-blocks": "warn",
+        "svelte/no-dupe-on-directives": "warn",
+        "svelte/no-dupe-style-properties": "warn",
+        "svelte/no-dupe-use-directives": "warn",
+        "svelte/no-dynamic-slot-name": "warn",
+        "svelte/no-export-load-in-svelte-module-in-kit-pages": "warn",
+        "svelte/no-not-function-handler": "warn",
+        "svelte/no-object-in-text-mustaches": "warn",
+        "svelte/no-reactive-reassign": "warn",
+        "svelte/no-shorthand-style-property-overrides": "warn",
+        "svelte/no-store-async": "warn",
+        "svelte/no-unknown-style-directive-property": "warn",
+        "svelte/require-store-callbacks-use-set-param": "warn",
+        "svelte/require-store-reactive-access": "warn",
+        "svelte/valid-compile": [
+            "off",
+            {
+                "ignoreWarnings": false
+            }
+        ],
+        "svelte/valid-prop-names-in-kit-pages": "off",
+        // Security vulnerabilities
+        "svelte/no-at-html-tags": "off",
+        "svelte/no-target-blank": "off",
+        // Best practices
         "svelte/block-lang": [
-            "error",
+            "warn",
             {
                 "enforceScriptPresent": false,
                 "enforceStylePresent": false,
@@ -71,14 +101,59 @@
                 "style": "scss"
             }
         ],
-        "svelte/no-immutable-reactive-statements": "error",
-        "svelte/no-reactive-functions": "error",
-        "svelte/no-reactive-literals": "error",
-        // "svelte/require-each-key": "error",
-        "svelte/valid-each-key": "error",
-        "svelte/html-closing-bracket-spacing": "error",
+        "svelte/button-has-type": [
+            "warn",
+            {
+                "button": true,
+                "submit": true,
+                "reset": true
+            }
+        ],
+        "svelte/no-at-debug-tags": "off",
+        "svelte/no-ignored-unsubscribe": "warn",
+        "svelte/no-immutable-reactive-statements": "warn",
+        "svelte/no-inline-styles": [
+            "off",
+            {
+                "allowTransitions": false
+            }
+        ],
+        "svelte/no-reactive-functions": "warn",
+        "svelte/no-reactive-literals": "warn",
+        "svelte/no-unused-class-name": "off",
+        "svelte/no-unused-svelte-ignore": "warn",
+        "svelte/no-useless-mustaches": [
+            "warn",
+            {
+                "ignoreIncludesComment": false,
+                "ignoreStringEscape": true
+            }
+        ],
+        "svelte/prefer-destructured-store-props": "off",
+        "svelte/require-each-key": "warn",
+        "svelte/require-event-dispatcher-types": "warn",
+        "svelte/require-optimized-style-attribute": "off",
+        "svelte/require-stores-init": "warn",
+        "svelte/valid-each-key": "warn",
+        // Stylistic issues
+        "svelte/derived-has-same-inputs-outputs": "warn",
+        "svelte/first-attribute-linebreak": [
+            "warn",
+            {
+                "multiline": "below",
+                "singleline": "beside"
+            }
+        ],
+        "svelte/html-closing-bracket-spacing": [
+            "warn",
+            {
+                "startTag": "never",
+                "endTag": "never",
+                "selfClosingTag": "always"
+            }
+        ],
         "svelte/html-quotes": [
-            "error",
+            "warn",
             {
                 "prefer": "double",
                 "dynamic": {
@@ -87,8 +162,17 @@
                 }
             }
         ],
+        "svelte/html-self-closing": [
+            "warn",
+            {
+                "void": "always",
+                "normal": "always",
+                "component": "always",
+                "svelte": "always"
+            }
+        ],
         "svelte/indent": [
-            "error",
+            "warn",
             {
                 "indent": 4,
                 "ignoredNodes": [],
@@ -96,9 +180,15 @@
                 "alignAttributesVertically": false
             }
         ],
-        "svelte/no-spaces-around-equal-signs-in-attribute": "error",
+        "svelte/max-attributes-per-line": [
+            "warn",
+            {
+                "multiline": 1,
+                "singleline": 4
+            }
+        ],
         "svelte/mustache-spacing": [
-            "error",
+            "warn",
             {
                 "textExpressions": "never",
                 "attributesAndProps": "never",
@@ -109,14 +199,30 @@
                 }
             }
         ],
-        "svelte/no-extra-reactive-curlies": "error",
-        "svelte/first-attribute-linebreak": [
-            "error",
+        "svelte/no-extra-reactive-curlies": "warn",
+        "svelte/no-restricted-html-elements": "off",
+        "svelte/no-spaces-around-equal-signs-in-attribute": "warn",
+        // Doru might prefer otherwise, though
+        "svelte/prefer-class-directive": "off",
+        "svelte/prefer-style-directive": "off",
+        "svelte/shorthand-attribute": "warn",
+        "svelte/shorthand-directive": "warn",
+        "svelte/sort-attributes": "off",
+        "svelte/spaced-html-comment": [
+            "warn",
+            "always"
+        ],
+        // Extension rules
+        "svelte/no-inner-declarations": "off", // I don't know how this works
+        "svelte/no-trailing-spaces": "warn",
+        // System
+        "svelte/comment-directive": [
+            "off",
             {
-                "multiline": "below",
-                "singleline": "beside"
+                "reportUnusedDisableDirectives": true
             }
         ]
+        // "svelte/system": "off"
     },
     "settings": {
         "svelte": {

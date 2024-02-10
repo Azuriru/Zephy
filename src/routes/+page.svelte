@@ -12,8 +12,8 @@
 
     type Group = {
         name: string;
-        items: Item[]
-    }
+        items: Item[];
+    };
 
     type List = Group[];
     let list = localStorageCentralized<List>('list', sample);
@@ -35,7 +35,7 @@
     function _onKeyDown(e: KeyboardEvent) {
         const selection = window.getSelection();
 
-        switch(e.key) {
+        switch (e.key) {
             case 'Enter':
                 e.preventDefault();
                 break;
@@ -66,11 +66,13 @@
 
         const pad = (number: number) => number.toString().padStart(2, '0');
 
-        return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(month + 1)}/${year}`;
+        return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(
+            month + 1,
+        )}/${year}`;
     }
 
     function onChange(groupIndex: number, itemIndex: number) {
-        const item = $list[groupIndex].items[itemIndex]
+        const item = $list[groupIndex].items[itemIndex];
 
         if (item.checked) {
             item.timestamp = Date.now();
@@ -89,6 +91,13 @@
         $list = $list;
     }
 
+    function addGroup(groupName: string) {}
+
+    function removeGroup(groupIndex: number) {
+        $list.splice(groupIndex, 1);
+        $list = $list;
+    }
+
     function checkGroup(groupIndex: number) {
         for (const item of $list[groupIndex].items) {
             item.checked = true;
@@ -98,7 +107,7 @@
     }
 
     function checkAll() {
-        for (const [ groupIndex ] of $list.entries()) {
+        for (const [groupIndex] of $list.entries()) {
             checkGroup(groupIndex);
         }
     }
@@ -111,13 +120,15 @@
     }
 
     function uncheckAll() {
-        for (const [ groupIndex ] of $list.entries()) {
+        for (const [groupIndex] of $list.entries()) {
             uncheckGroup(groupIndex);
         }
     }
 
     function findDuplicate(groupIndex: number, value: string) {
-        return $list[groupIndex].items.some((item: Item) => item.value === value);
+        return $list[groupIndex].items.some(
+            (item: Item) => item.value === value,
+        );
     }
 
     function focusOut(e: FocusEvent, groupIndex: number) {
@@ -147,6 +158,10 @@
             Add Group
             <FontAwesome name="plus" />
         </button>
+        <button>
+            Remove Group
+            <FontAwesome name="minus" />
+        </button>
         <button on:click={uncheckAll}>
             Uncheck all
             <FontAwesome name="xmark" />
@@ -164,18 +179,20 @@
                     <span>Group: {capitalize(name)}</span>
                     <div class="list-group-actions">
                         <button on:click={() => uncheckGroup(groupIndex)}>
-                            Uncheck all
-                            <FontAwesome name="xmark" />
+                            <FontAwesome name="square" type="regular" />
                         </button>
                         <button on:click={() => checkGroup(groupIndex)}>
-                            Check all
-                            <FontAwesome name="check" />
+                            <FontAwesome name="square-check" type="regular" />
                         </button>
                     </div>
                 </div>
                 {#each items as { checked, value, timestamp }, itemIndex (value)}
-                    <label class="list-item">
-                        <input type="checkbox" bind:checked={checked} on:change={() => onChange(groupIndex, itemIndex)}>
+                    <label class="list-item" class:checked>
+                        <input
+                            type="checkbox"
+                            bind:checked
+                            on:change={() => onChange(groupIndex, itemIndex)}
+                        />
                         <div class="list-checkbox">
                             {#if checked}
                                 <FontAwesome name="check" />
@@ -183,14 +200,23 @@
                         </div>
                         <div class="list-item-info">
                             <span class="list-item-name">{value}</span>
-                            <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
+                            <span class="list-item-timestamp"
+                                >{formatTimestamp(timestamp)}</span
+                            >
                         </div>
-                        <button class="list-item-remove" on:click={() => removeItem(groupIndex, itemIndex)}>
+                        <button
+                            class="list-item-remove"
+                            on:click={() => removeItem(groupIndex, itemIndex)}
+                        >
                             <FontAwesome name="xmark" />
                         </button>
                     </label>
                 {/each}
-                <div class="list-last" contenteditable="true" on:focusout={(e) => focusOut(e, groupIndex)} />
+                <div
+                    class="list-last"
+                    contenteditable="true"
+                    on:focusout={(e) => focusOut(e, groupIndex)}
+                />
             </div>
         {/each}
     {/if}
@@ -233,7 +259,7 @@
 
     .list,
     .list-group,
-    .list-item-info  {
+    .list-item-info {
         display: flex;
         flex-direction: column;
     }
@@ -257,6 +283,11 @@
         align-items: center;
         padding: 12px 0;
 
+        &.checked {
+            order: 1;
+            filter: brightness(0.5);
+        }
+
         input {
             appearance: none;
 
@@ -264,7 +295,7 @@
                 @include center;
                 width: 20px;
                 height: 20px;
-                background: rgb(255, 255, 255, .1);
+                background: rgb(255, 255, 255, 0.1);
                 color: #34d399;
                 margin-right: 8px;
             }
@@ -293,5 +324,6 @@
     .list-last {
         // background: blue;
         margin-left: 28px;
+        order: 10;
     }
 </style>
