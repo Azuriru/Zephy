@@ -1,23 +1,23 @@
 [
     {
-        "name": "food",
+        "name": "Food",
         "items": [
             {
-                "value": "apple"
+                "value": "Apple"
             },
             {
-                "value": "orange"
+                "value": "Orange"
             },
             {
-                "value": "egg"
+                "value": "Egg"
             }
         ]
     },
     {
-        "name": "supplies",
+        "name": "Supplies",
         "items": [
             {
-                "value": "dish soap"
+                "value": "Dish soap"
             }
         ]
     }

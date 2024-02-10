@@ -18,11 +18,32 @@
     type List = Group[];
     let list = localStorageCentralized<List>('list', sample);
 
-    // type HistoryEntry = {
+    type HistoryEntry = {
+        type: number;
+        groupIndex: number;
+        itemIndex: number;
+        data?: number;
+    }
 
-    // }
+    const HISTORY_STATE_TYPE = {
+        UNCHECK_ITEM: 0,
+        CHECK_ITEM: 1,
+    } as const;
 
-    let historyList = [];
+    let undoHistory: HistoryEntry[] = [];
+    let redoHistory: HistoryEntry[] = [];
+
+    $: console.log(undoHistory);
+
+    function addHistory(type: number, groupIndex: number, itemIndex: number, data?: number) {
+        undoHistory.push({
+            type,
+            groupIndex,
+            itemIndex,
+            data
+        });
+        undoHistory = undoHistory;
+    }
 
     function formatTimestamp(timestamp?: number) {
         if (!timestamp) {
@@ -57,14 +78,36 @@
         $list[groupIndex].items[itemIndex].value = capitalize($list[groupIndex].items[itemIndex].value);
     }
 
+    function checkItem(groupIndex: number, itemIndex: number, pushHistory = true) {
+        const item = $list[groupIndex].items[itemIndex];
+
+        if (pushHistory) addHistory(HISTORY_STATE_TYPE.CHECK_ITEM, groupIndex, itemIndex, item.timestamp);
+
+        item.checked = true;
+        item.timestamp = Date.now();
+        $list = $list;
+    }
+
+    function uncheckItem(groupIndex: number, itemIndex: number, timestamp?: number, pushHistory = true) {
+        $list[groupIndex].items[itemIndex].checked = false;
+
+        if (pushHistory) {
+            addHistory(HISTORY_STATE_TYPE.UNCHECK_ITEM, groupIndex, itemIndex);
+        } else {
+            $list[groupIndex].items[itemIndex].timestamp = timestamp;
+        }
+
+        $list = $list;
+    }
+
     function onCheckItem(groupIndex: number, itemIndex: number) {
         const item = $list[groupIndex].items[itemIndex];
 
         if (item.checked) {
-            item.timestamp = Date.now();
+            checkItem(groupIndex, itemIndex);
+        } else {
+            uncheckItem(groupIndex, itemIndex);
         }
-
-        $list = $list;
     }
 
     function addGroup() {
@@ -111,6 +154,45 @@
         }
     }
 
+    function undo() {
+        const lastEntry = undoHistory.pop();
+        if (!lastEntry) return;
+
+        const { type, groupIndex, itemIndex, data } = lastEntry;
+
+        switch(type) {
+            case HISTORY_STATE_TYPE.CHECK_ITEM:
+                uncheckItem(groupIndex, itemIndex, data, false);
+                console.log('checked item');
+                break;
+            case HISTORY_STATE_TYPE.UNCHECK_ITEM:
+                checkItem(groupIndex, itemIndex, false);
+                console.log('unchecked item');
+                break;
+        }
+
+        undoHistory = undoHistory;
+    }
+
+    function redo() {
+        const lastEntry = redoHistory.pop();
+
+        if (!lastEntry) return;
+
+        const { type, groupIndex, itemIndex, data } = lastEntry;
+
+        switch(type) {
+            case HISTORY_STATE_TYPE.CHECK_ITEM:
+                uncheckItem(groupIndex, itemIndex, data, false);
+                console.log('checked item');
+                break;
+            case HISTORY_STATE_TYPE.UNCHECK_ITEM:
+                checkItem(groupIndex, itemIndex, false);
+                console.log('unchecked item');
+                break;
+        }
+    }
+
     function clear() {
         $list = sample;
     }
@@ -126,7 +208,13 @@
         {@const { items } = group}
         <div class="list-group">
             <div class="list-header">
-                <input type="text" placeholder="New group" bind:value={group.name} on:input={() => renameGroup(groupIndex)} />
+                <input
+                    class="list-group-input"
+                    type="text"
+                    placeholder="New group"
+                    bind:value={group.name}
+                    on:input={() => renameGroup(groupIndex)}
+                />
                 <div class="list-group-actions">
                     <button type="button" on:click={() => removeGroup(groupIndex)}>
                         <FontAwesome name="trash-can" type="regular" />
@@ -174,7 +262,7 @@
                 <div class="list-plus">
                     <FontAwesome name="plus" />
                 </div>
-                Add item
+                <span class="list-plus-text">Add item</span>
             </button>
         </div>
     {/each}
@@ -186,10 +274,10 @@
         <button type="button" on:click={addGroup}>
             <FontAwesome name="square-plus" type="regular" />
         </button>
-        <button type="button" class="history-control">
+        <button type="button" class="history-control" disabled={!undoHistory.length} on:click={undo}>
             <FontAwesome name="arrow-rotate-left" />
         </button>
-        <button type="button" class="history-control">
+        <button type="button" class="history-control" disabled={!redoHistory.length} on:click={redo}>
             <FontAwesome name="arrow-rotate-right" />
         </button>
     </div>
@@ -199,6 +287,9 @@
         </button>
         <button type="button" on:click={checkAll}>
             <FontAwesome name="square-check" type="regular" />
+        </button>
+        <button type="button">
+            <FontAwesome name="sliders" />
         </button>
     </div>
 </div>
@@ -245,7 +336,7 @@
             } @else if $prop == none {
                 flex: none;
             } @else if $prop == noShrink {
-                flex-shrink: none;
+                flex-shrink: 0;
             }
         }
     }
@@ -272,7 +363,7 @@
         .history-control {
             font-size: 20px;
 
-            &.disabled {
+            &:disabled {
                 filter: brightness(0.5);
             }
         }
@@ -300,6 +391,11 @@
     .list-header {
         @include flex(between);
         margin-bottom: 10px;
+
+        .list-group-input {
+            @include flex;
+            width: 100%;
+        }
 
         .list-group-actions {
             @include flex;
@@ -331,7 +427,7 @@
         }
 
         .list-drag {
-            @include flex(center);
+            @include flex(center, noShrink);
             width: $cube;
             height: $cube;
             margin-right: 8px;
@@ -343,7 +439,7 @@
                 appearance: none;
 
                 & + .list-checkbox {
-                    @include flex(center);
+                    @include flex(center, noShrink);
                     width: $cube;
                     height: $cube;
                     background: rgb(255, 255, 255, 0.1);
@@ -354,11 +450,17 @@
 
             .list-item-info {
                 flex-grow: 1;
-            }
 
-            .list-item-timestamp {
-                font-size: 12px;
-                color: #848484;
+                .list-item-name {
+                    width: 100%;
+                }
+
+                .list-item-timestamp {
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    font-size: 12px;
+                    color: #848484;
+                }
             }
         }
 
@@ -377,10 +479,16 @@
         order: 10;
 
         .list-plus {
-            @include flex(center);
+            @include flex(center, noShrink);
             width: $cube;
             height: $cube;
             margin-right: 8px;
+        }
+
+        .list-plus-text {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
     }
 </style>
