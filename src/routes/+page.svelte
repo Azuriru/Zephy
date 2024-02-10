@@ -302,7 +302,18 @@
         margin-bottom: 10px;
 
         .list-group-actions {
+            @include flex;
             font-size: 18px;
+
+            button {
+                @include flex(center);
+                width: 20px;
+                height: 20px;
+
+                &:not(:first-of-type) {
+                    margin-left: 8px;
+                }
+            }
         }
     }
 
