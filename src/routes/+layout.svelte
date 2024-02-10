@@ -6,6 +6,4 @@
     <title>List</title>
 </svelte:head>
 
-<div class="main-screen">
-    <slot />
-</div>
+<slot />
