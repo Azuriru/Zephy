@@ -7,4 +7,4 @@
     export let type: string = 'solid';
 </script>
 
-<i class="fa-{type} fa-{name} fa-fw"></i>
+<i class="fa-{type} fa-{name} fa-fw" />

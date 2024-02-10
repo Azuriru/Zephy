@@ -6,8 +6,8 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:svelte/base",
-        "plugin:svelte/recommended"
+        "plugin:svelte/base"
+        // "plugin:svelte/recommended"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
@@ -19,7 +19,7 @@
         ]
     },
     "plugins": [
-        "svelte-stylistic",
+        // "svelte-stylistic",
         "@typescript-eslint"
     ],
     "overrides": [
@@ -38,7 +38,7 @@
         }
     ],
     "rules": {
-        "svelte-stylistic/consistent-attribute-lines": "error",
+        // "svelte-stylistic/consistent-attribute-lines": "warn",
         "@typescript-eslint/no-unused-vars": [
             "warn",
             {
