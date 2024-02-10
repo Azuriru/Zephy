@@ -117,6 +117,11 @@
 </script>
 
 <div class="list">
+    {#if !$list.length}
+        <div class="list-empty">
+            There's nothing here, consider adding something?
+        </div>
+    {/if}
     {#each $list as group, groupIndex (group)}
         {@const { items } = group}
         <div class="list-group">
@@ -279,6 +284,9 @@
         flex-grow: 1;
     }
 
+    .list-empty {
+        @include flex(center, one);
+    }
     .list,
     .list-group,
     .list-item-info {
@@ -292,6 +300,10 @@
     .list-header {
         @include flex(between);
         margin-bottom: 10px;
+
+        .list-group-actions {
+            font-size: 18px;
+        }
     }
 
     .list-item {
