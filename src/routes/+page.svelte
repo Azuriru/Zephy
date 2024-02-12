@@ -2,6 +2,7 @@
     import { localStorageCentralized } from '$lib/util/store';
     import { FontAwesome } from '$lib/components';
     import { capitalize } from '$lib/util';
+    import { todosHistory, type Todo } from '$lib/util/list';
     import sample from './default.json';
 
     type Item = {
@@ -17,32 +18,7 @@
 
     type List = Group[];
     let list = localStorageCentralized<List>('list', sample);
-
-    type HistoryEntry = {
-        type: number;
-        groupIndex: number;
-        itemIndex: number;
-        data?: number;
-    }
-
-    const HISTORY_STATE_TYPE = {
-        UNCHECK_ITEM: 0,
-        CHECK_ITEM: 1,
-    } as const;
-
-    let undoHistory: HistoryEntry[] = [];
-    let redoHistory: HistoryEntry[] = [];
     let last: Item | null = null;
-
-    function addHistory(type: number, groupIndex: number, itemIndex: number, data?: number) {
-        undoHistory.push({
-            type,
-            groupIndex,
-            itemIndex,
-            data
-        });
-        undoHistory = undoHistory;
-    }
 
     function formatTimestamp(timestamp?: number) {
         if (!timestamp) {
@@ -78,32 +54,19 @@
         $list[groupIndex].items[itemIndex].value = capitalize($list[groupIndex].items[itemIndex].value);
     }
 
-    function checkItem(groupIndex: number, itemIndex: number, pushHistory = true) {
-        const item = $list[groupIndex].items[itemIndex];
-
-        if (pushHistory) addHistory(HISTORY_STATE_TYPE.CHECK_ITEM, groupIndex, itemIndex, item.timestamp);
-
-        item.checked = true;
-        item.timestamp = Date.now();
+    function checkItem(groupIndex: number, itemIndex: number) {
+        $list[groupIndex].items[itemIndex].checked = true;
+        $list[groupIndex].items[itemIndex].timestamp = Date.now();
         $list = $list;
     }
 
-    function uncheckItem(groupIndex: number, itemIndex: number, timestamp?: number, pushHistory = true) {
+    function uncheckItem(groupIndex: number, itemIndex: number) {
         $list[groupIndex].items[itemIndex].checked = false;
-
-        if (pushHistory) {
-            addHistory(HISTORY_STATE_TYPE.UNCHECK_ITEM, groupIndex, itemIndex);
-        } else {
-            $list[groupIndex].items[itemIndex].timestamp = timestamp;
-        }
-
         $list = $list;
     }
 
     function onCheckItem(groupIndex: number, itemIndex: number) {
-        const item = $list[groupIndex].items[itemIndex];
-
-        if (item.checked) {
+        if ($list[groupIndex].items[itemIndex].checked) {
             checkItem(groupIndex, itemIndex);
         } else {
             uncheckItem(groupIndex, itemIndex);
@@ -151,45 +114,6 @@
     function uncheckAll() {
         for (const [groupIndex] of $list.entries()) {
             uncheckGroup(groupIndex);
-        }
-    }
-
-    function undo() {
-        const lastEntry = undoHistory.pop();
-        if (!lastEntry) return;
-
-        const { type, groupIndex, itemIndex, data } = lastEntry;
-
-        switch(type) {
-            case HISTORY_STATE_TYPE.CHECK_ITEM:
-                uncheckItem(groupIndex, itemIndex, data, false);
-                console.log('checked item');
-                break;
-            case HISTORY_STATE_TYPE.UNCHECK_ITEM:
-                checkItem(groupIndex, itemIndex, false);
-                console.log('unchecked item');
-                break;
-        }
-
-        undoHistory = undoHistory;
-    }
-
-    function redo() {
-        const lastEntry = redoHistory.pop();
-
-        if (!lastEntry) return;
-
-        const { type, groupIndex, itemIndex, data } = lastEntry;
-
-        switch(type) {
-            case HISTORY_STATE_TYPE.CHECK_ITEM:
-                uncheckItem(groupIndex, itemIndex, data, false);
-                console.log('checked item');
-                break;
-            case HISTORY_STATE_TYPE.UNCHECK_ITEM:
-                checkItem(groupIndex, itemIndex, false);
-                console.log('unchecked item');
-                break;
         }
     }
 
@@ -275,10 +199,10 @@
         <button type="button" on:click={addGroup}>
             <FontAwesome name="square-plus" type="regular" />
         </button>
-        <button type="button" class="history-control" disabled={!undoHistory.length} on:click={undo}>
+        <button type="button" class="history-control">
             <FontAwesome name="arrow-rotate-left" />
         </button>
-        <button type="button" class="history-control" disabled={!redoHistory.length} on:click={redo}>
+        <button type="button" class="history-control">
             <FontAwesome name="arrow-rotate-right" />
         </button>
     </div>
