@@ -1,5 +1,4 @@
 import assert from 'assertmin';
-import { readable } from 'svelte/store';
 
 interface HistoryStack<State, Event> {
     state: State;
@@ -13,72 +12,69 @@ interface HistoryStack<State, Event> {
     redo(): boolean;
 }
 
-type InitEvent = {
-    type: 'init';
-    todos: Todo[];
+type AddEvent = {
+    type: 'add';
+    index: number;
+    item: Item;
 };
 
 type CheckEvent = {
     type: 'check';
-    index: number;
-    todo: Todo;
+    itemIndex: number;
+    groupIndex: number;
+    previous: Item;
 };
 
 type UncheckEvent = {
     type: 'uncheck';
     index: number;
-    todo: Todo;
+    item: Item;
 };
 
-type CheckGroupEvent = {
-    type: 'checkGroup';
+type AddGroupEvent = {
+    type: 'addGroup';
     index: number;
-    todo: Todo;
-};
-
-type UncheckGroupEvent = {
-    type: 'uncheckGroup';
-    index: number;
-    todo: Todo;
-};
-
-type AddEvent = {
-    type: 'add';
-    index: number;
-    todo: Todo;
-};
+    group: Group;
+}
 
 type RemoveEvent = {
     type: 'remove';
-    index: number;
-    removed: Todo;
+    itemIndex: number;
+    groupIndex: number;
+    removed: Item;
 };
 
 type EditTodo = {
     type: 'edit';
-    index: number;
-    previous: Todo;
-    edited: Todo;
-};
-
-type Event = InitEvent | CheckEvent | UncheckEvent | CheckGroupEvent | UncheckGroupEvent | AddEvent | RemoveEvent | EditTodo;
-
-export type Todo = {
-    checked?: boolean;
-    timestamp?: number;
     itemIndex: number;
     groupIndex: number;
+    previous: Item;
+    edited: Item;
+};
+
+type Event = AddEvent | CheckEvent | UncheckEvent | AddGroupEvent | RemoveEvent | EditTodo;
+
+export type Item = {
     value: string;
     id: number;
+    groupIndex: number;
+    checked?: boolean;
+    timestamp?: number;
 };
 
-type State = {
-    todos: Todo[];
+type Group = {
+    id: number;
+    name: string;
+    items: Item[];
 };
 
-class TodosHistory implements HistoryStack<State | null, Event> {
+export type State = {
+    groups: Group[];
+};
+
+export class TodosHistory implements HistoryStack<State | null, Event> {
     setter: (hist: TodosHistory) => void;
-    state: State = { todos: [] };
+    state: State = { groups: [] };
     events: Event[] = [];
     index: number = 0;
 
@@ -94,7 +90,7 @@ class TodosHistory implements HistoryStack<State | null, Event> {
             case 'edit': {
                 const lastEvent = this.events[this.index - 1];
 
-                if (lastEvent.type === 'edit' && lastEvent.index === event.index) {
+                if (lastEvent.type === 'edit' && lastEvent.itemIndex === event.itemIndex) {
                     lastEvent.edited = event.edited;
                     this.index--;
                 } else {
@@ -105,7 +101,6 @@ class TodosHistory implements HistoryStack<State | null, Event> {
             default:
                 this.events.push(event);
         }
-
         assert(this.redo());
     }
 
@@ -132,17 +127,14 @@ class TodosHistory implements HistoryStack<State | null, Event> {
         if (event === null) return false;
 
         switch (event.type) {
-            case 'init':
-                this.state.todos = event.todos;
-                break;
             case 'add':
-                this.state.todos.splice(event.index, 1);
+                this.state.groups[event.item.groupIndex].items.splice(event.index, 1);
                 break;
             case 'remove':
-                this.state.todos.splice(event.index, 0, event.removed);
+                this.state.groups[event.groupIndex].items.splice(event.itemIndex, 0, event.removed);
                 break;
             case 'edit':
-                this.state.todos[event.index] = event.previous;
+                this.state.groups[event.groupIndex].items[event.itemIndex] = event.previous;
                 break;
             default:
                 console.log(event);
@@ -159,17 +151,17 @@ class TodosHistory implements HistoryStack<State | null, Event> {
         if (event === null) return false;
 
         switch (event.type) {
-            case 'init':
-                this.state.todos = event.todos;
-                break;
             case 'add':
-                this.state.todos.push(event.todo);
+                this.state.groups[event.item.groupIndex].items.push(event.item);
+                break;
+            case 'addGroup':
+                this.state.groups.push(event.group);
                 break;
             case 'remove':
-                this.state.todos.splice(event.index, 1);
+                this.state.groups[event.groupIndex].items.splice(event.itemIndex, 1);
                 break;
             case 'edit':
-                this.state.todos[event.index] = event.edited;
+                this.state.groups[event.groupIndex].items[event.itemIndex] = event.edited;
                 break;
             default:
                 console.log(event);
@@ -181,11 +173,3 @@ class TodosHistory implements HistoryStack<State | null, Event> {
         return true;
     }
 }
-
-export const todosHistory = readable<TodosHistory>(null as never, (set) => {
-    const hist = new TodosHistory(set, {
-        todos: []
-    });
-
-    set(hist);
-});
