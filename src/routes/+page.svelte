@@ -32,8 +32,7 @@
 
     let undoHistory: HistoryEntry[] = [];
     let redoHistory: HistoryEntry[] = [];
-
-    $: console.log(undoHistory);
+    let last: Item | null = null;
 
     function addHistory(type: number, groupIndex: number, itemIndex: number, data?: number) {
         undoHistory.push({
@@ -67,6 +66,7 @@
     function addItem(groupIndex: number) {
         $list[groupIndex].items.push({ value: '' });
         $list = $list;
+        last = $list[groupIndex].items[$list[groupIndex].items.length - 1];
     }
 
     function removeItem(groupIndex: number, itemIndex: number) {
@@ -245,6 +245,7 @@
                                 class="list-item-name"
                                 type="text"
                                 placeholder="New item"
+                                autofocus={item === last}
                                 bind:value={item.value}
                                 on:input={() => renameItem(groupIndex, itemIndex)}
                             />
@@ -341,7 +342,11 @@
         }
     }
 
-    $cube: 24px;
+    $cube: 36px;
+    $checkbox: 24px;
+    $hover: #272727;
+    $hover-transition: background-color .5s;
+
     .toolbar {
         @include flex(between);
         background: #20232c;
@@ -370,13 +375,14 @@
     }
 
     .list {
-        padding: 40px;
+        padding: 40px 20px;
         overflow: auto;
         flex-grow: 1;
     }
 
     .list-empty {
         @include flex(center, one);
+        text-align: center;
     }
     .list,
     .list-group,
@@ -390,6 +396,7 @@
 
     .list-header {
         @include flex(between);
+        padding: 0 8px 0 6px;
         margin-bottom: 10px;
 
         .list-group-input {
@@ -414,8 +421,14 @@
     }
 
     .list-item {
-        @include flex(centerY);
+        @include flex;
         height: 36px;
+        transition: $hover-transition;
+
+        &:hover,
+        &:active {
+            background: $hover;
+        }
 
         // &:not(:nth-last-of-type(2)) {
             margin-bottom: 4px;
@@ -430,7 +443,6 @@
             @include flex(center, noShrink);
             width: $cube;
             height: $cube;
-            margin-right: 8px;
         }
 
         .list-label {
@@ -440,8 +452,8 @@
 
                 & + .list-checkbox {
                     @include flex(center, noShrink);
-                    width: $cube;
-                    height: $cube;
+                    width: $checkbox;
+                    height: $checkbox;
                     background: rgb(255, 255, 255, 0.1);
                     color: #34d399;
                     margin-right: 8px;
@@ -465,23 +477,28 @@
         }
 
         .list-item-remove {
-            @include flex(center);
-            width: 20px;
-            height: 20px;
+            @include flex(center, noShrink);
+            width: $cube;
+            height: $cube;
         }
     }
 
     .list-last {
         @include flex(centerY);
-        height: 36px;
-        // background: blue;
-        margin-left: 32px;
+        height: $cube;
+        padding-left: $cube;
         order: 10;
+        transition: $hover-transition;
+
+        &:hover,
+        &:active {
+            background: $hover;
+        }
 
         .list-plus {
             @include flex(center, noShrink);
-            width: $cube;
-            height: $cube;
+            width: $checkbox;
+            height: $checkbox;
             margin-right: 8px;
         }
 
