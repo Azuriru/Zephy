@@ -4,13 +4,11 @@
     import { capitalize, clone } from '$lib/util';
     import { readable } from 'svelte/store';
     import sample from '../default.json';
-    import { browser } from '$app/environment';
-
 
     type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement; }
 
     export const todosHistory = readable<TodosHistory>(null as never, (set) => {
-        const hist = new TodosHistory(set, {
+        const hist = new TodosHistory((set), {
             groups: []
         });
 
@@ -65,7 +63,7 @@
             previous: $todosHistory.state.groups[groupIndex].items[itemIndex],
             edited: {
                 ...$todosHistory.state.groups[groupIndex].items[itemIndex],
-                value: e.currentTarget.value
+                value: capitalize(e.currentTarget.value)
             }
         });
     }
@@ -124,7 +122,7 @@
             previous: $todosHistory.state.groups[groupIndex],
             edited: {
                 ...$todosHistory.state.groups[groupIndex],
-                name: e.currentTarget.value
+                name: capitalize(e.currentTarget.value)
             }
         });
     }

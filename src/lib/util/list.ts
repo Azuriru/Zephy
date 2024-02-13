@@ -1,3 +1,5 @@
+import { browser } from '$app/environment';
+import { centralizedKey } from './store';
 import assert from 'assertmin';
 
 interface HistoryStack<State, Event> {
@@ -120,7 +122,36 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
 
     constructor(setter: (hist: TodosHistory) => void, state: State) {
         this.setter = setter;
-        this.state = state;
+        this.init(state);
+    }
+
+    init(state: State) {
+        let data: Record<string, State> = {};
+
+        data['list'] = state;
+        if (browser) {
+            const stored = localStorage.getItem(centralizedKey);
+
+            if (stored !== null) {
+                data = Object.assign(data, JSON.parse(stored))
+            }
+        }
+        this.state = data['list'];
+    }
+
+    updateLocalStorage() {
+        let data: Record<string, State> = {};
+
+        if (browser) {
+            const stored = localStorage.getItem(centralizedKey);
+
+            if (stored !== null) {
+                data = Object.assign(data, JSON.parse(stored))
+            }
+
+            data['list'] = this.state;
+            localStorage.setItem(centralizedKey, JSON.stringify(data));
+        }
     }
 
     do(event: Event) {
@@ -130,7 +161,7 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
             case 'edit': {
                 const lastEvent = this.events[this.index - 1];
 
-                if (lastEvent.type === 'edit' && lastEvent.itemIndex === event.itemIndex) {
+                if (lastEvent && lastEvent.type === 'edit' && lastEvent.itemIndex === event.itemIndex) {
                     lastEvent.edited = event.edited;
                     this.index--;
                 } else {
@@ -141,7 +172,7 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
             case 'edit-group': {
                 const lastEvent = this.events[this.index - 1];
 
-                if (lastEvent.type === 'edit-group' && lastEvent.groupIndex === event.groupIndex) {
+                if (lastEvent && lastEvent.type === 'edit-group' && lastEvent.groupIndex === event.groupIndex) {
                     lastEvent.edited = event.edited;
                     this.index--;
                 } else {
@@ -224,6 +255,7 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
         }
 
         this.setter(this);
+        this.updateLocalStorage();
 
         return true;
     }
@@ -292,6 +324,7 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
         }
 
         this.setter(this);
+        this.updateLocalStorage();
 
         return true;
     }
