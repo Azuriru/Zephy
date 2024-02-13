@@ -7,7 +7,7 @@
 
     type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement; }
 
-    export const todosHistory = readable<TodosHistory>(null as never, (set) => {
+    const todosHistory = readable<TodosHistory>(null as never, (set) => {
         const hist = new TodosHistory((set), {
             groups: []
         });
