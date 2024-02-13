@@ -77,6 +77,7 @@ type CheckGroupEvent = {
 type UncheckGroupEvent = {
     type: 'uncheck-group';
     groupIndex: number;
+    previous: Group;
 };
 
 type RemoveAllEvent = {
@@ -91,6 +92,7 @@ type CheckAllEvent = {
 
 type UncheckAllEvent = {
     type: 'uncheck-all';
+    previous: Group[];
 };
 
 type ItemEvents = AddEvent | RemoveEvent | EditEvent | CheckEvent | UncheckEvent;
@@ -230,25 +232,15 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
                 break;
             case 'edit-group':
             case 'check-group':
-                this.state.groups[event.groupIndex] = event.previous;
-                break;
             case 'uncheck-group':
-                for (const item of this.state.groups[event.groupIndex].items) {
-                    item.checked = true;
-                }
+                this.state.groups[event.groupIndex] = event.previous;
                 break;
             case 'remove-all':
                 this.state.groups = event.removed;
                 break;
             case 'check-all':
-                this.state.groups = event.previous;
-                break;
             case 'uncheck-all':
-                for (const group of this.state.groups) {
-                    for (const item of group.items) {
-                        item.checked = true;
-                    }
-                }
+                this.state.groups = event.previous;
                 break;
             default:
                 assert.unreachable(event);

@@ -137,7 +137,8 @@
     function uncheckGroup(groupIndex: number) {
         $todosHistory.do({
             type: 'uncheck-group',
-            groupIndex
+            groupIndex,
+            previous: clone($todosHistory.state.groups[groupIndex])
         });
     }
 
@@ -157,7 +158,8 @@
 
     function uncheckAll() {
         $todosHistory.do({
-            type: 'uncheck-all'
+            type: 'uncheck-all',
+            previous: clone($todosHistory.state.groups)
         });
     }
 </script>
