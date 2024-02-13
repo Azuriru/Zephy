@@ -20,7 +20,8 @@
     },
     "plugins": [
         // "svelte-stylistic",
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "@stylistic/js"
     ],
     "overrides": [
         {
@@ -63,6 +64,16 @@
         "quotes": [
             "warn",
             "single"
+        ],
+        "@stylistic/js/comma-dangle": [
+            "warn",
+            {
+                "arrays": "never",
+                "objects": "never",
+                "imports": "never",
+                "exports": "never",
+                "functions": "never"
+            }
         ],
         // Possible errors
         "svelte/infinite-reactive-loop": "warn",
