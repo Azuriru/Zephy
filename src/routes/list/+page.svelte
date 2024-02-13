@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { type Item, TodosHistory } from '$lib/util/list';
-    import { localStorageCentralized } from '$lib/util/store';
+    import { TodosHistory } from '$lib/util/list';
     import { FontAwesome } from '$lib/components';
-    import { capitalize } from '$lib/util';
+    import { capitalize, clone } from '$lib/util';
     import { readable } from 'svelte/store';
     import sample from '../default.json';
+    import { browser } from '$app/environment';
 
 
-    // let list = localStorageCentralized('list', sample);
+    type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement; }
 
     export const todosHistory = readable<TodosHistory>(null as never, (set) => {
         const hist = new TodosHistory(set, {
@@ -39,55 +39,10 @@
     function addItem(groupIndex: number) {
         $todosHistory.do({
             type: 'add',
-            index: $todosHistory.state.groups[groupIndex].items.length,
-            item: {
-                value: '',
-                groupIndex,
-                id: Math.floor(Math.random() * 1e20)
-            }
-        });
-    }
-
-    function checkItem(groupIndex: number, itemIndex: number) {
-        $todosHistory.do({
-            type: 'check',
-            itemIndex,
+            itemIndex: $todosHistory.state.groups[groupIndex].items.length,
             groupIndex,
-            previous: $todosHistory.state.groups[groupIndex].items[itemIndex]
-        });
-    }
-
-    function uncheckItem(groupIndex: number, itemIndex: number) {
-        $todosHistory.do({
-            type: 'uncheck',
-            index: $todosHistory.state.groups[groupIndex].items.length,
             item: {
                 value: '',
-                groupIndex,
-                id: Math.floor(Math.random() * 1e20)
-            }
-        });
-    }
-
-    // function onCheckItem(groupIndex: number, itemIndex: number) {
-    //     if ($todosHistory[groupIndex].items[itemIndex].checked) {
-    //         checkItem(groupIndex, itemIndex);
-    //     } else {
-    //         uncheckItem(groupIndex, itemIndex);
-    //     }
-    // }
-
-    function onCheckItem(e) {
-        console.log(e);
-    }
-
-    function addGroup() {
-        $todosHistory.do({
-            type: 'addGroup',
-            index: $todosHistory.state.groups.length,
-            group: {
-                items: [],
-                name: '',
                 id: Math.floor(Math.random() * 1e20)
             }
         });
@@ -102,16 +57,112 @@
         });
     }
 
-    function editItem(groupIndex: number, itemIndex: number, edited: Item) {
+    function editItem(e: InputEvent, groupIndex: number, itemIndex: number) {
         $todosHistory.do({
             type: 'edit',
             itemIndex,
             groupIndex,
             previous: $todosHistory.state.groups[groupIndex].items[itemIndex],
-            edited
+            edited: {
+                ...$todosHistory.state.groups[groupIndex].items[itemIndex],
+                value: e.currentTarget.value
+            }
         });
     }
 
+    function checkItem(groupIndex: number, itemIndex: number) {
+        $todosHistory.do({
+            type: 'check',
+            itemIndex,
+            groupIndex,
+            previous: {
+                ...$todosHistory.state.groups[groupIndex].items[itemIndex]
+            }
+        });
+    }
+
+    function uncheckItem(groupIndex: number, itemIndex: number) {
+        $todosHistory.do({
+            type: 'uncheck',
+            itemIndex,
+            groupIndex
+        });
+    }
+
+    function onCheckItem(groupIndex: number, itemIndex: number) {
+        if ($todosHistory.state.groups[groupIndex].items[itemIndex].checked) {
+            uncheckItem(groupIndex, itemIndex);
+        } else {
+            checkItem(groupIndex, itemIndex);
+        }
+    }
+
+    function addGroup() {
+        $todosHistory.do({
+            type: 'add-group',
+            groupIndex: $todosHistory.state.groups.length,
+            group: {
+                items: [],
+                name: '',
+                id: Math.floor(Math.random() * 1e20)
+            }
+        });
+    }
+
+    function removeGroup(groupIndex: number) {
+        $todosHistory.do({
+            type: 'remove-group',
+            groupIndex,
+            removed: $todosHistory.state.groups[groupIndex]
+        });
+    }
+
+    function editGroup(e: InputEvent, groupIndex: number) {
+        $todosHistory.do({
+            type: 'edit-group',
+            groupIndex,
+            previous: $todosHistory.state.groups[groupIndex],
+            edited: {
+                ...$todosHistory.state.groups[groupIndex],
+                name: e.currentTarget.value
+            }
+        });
+    }
+
+    function checkGroup(groupIndex: number) {
+        $todosHistory.do({
+            type: 'check-group',
+            groupIndex,
+            previous: clone($todosHistory.state.groups[groupIndex])
+        });
+    }
+
+    function uncheckGroup(groupIndex: number) {
+        $todosHistory.do({
+            type: 'uncheck-group',
+            groupIndex
+        });
+    }
+
+    function removeAll() {
+        $todosHistory.do({
+            type: 'remove-all',
+            removed: $todosHistory.state.groups
+        });
+    }
+
+    function checkAll() {
+        $todosHistory.do({
+            type: 'check-all',
+            previous: clone($todosHistory.state.groups)
+        });
+    }
+
+    function uncheckAll() {
+        $todosHistory.do({
+            type: 'uncheck-all'
+        });
+    }
 </script>
 
 <div class="list">
@@ -121,24 +172,24 @@
         </div>
     {/if}
     {#each $todosHistory.state.groups as group, groupIndex (group.id)}
-        {@const { items } = group}
+        {@const { name: value, items } = group}
         <div class="list-group">
             <div class="list-header">
                 <input
                     class="list-group-input"
                     type="text"
                     placeholder="New group"
-                    bind:value={group.name}
-                    on:input={() => {}}
+                    {value}
+                    on:input={(e) => editGroup(e, groupIndex)}
                 />
                 <div class="list-group-actions">
-                    <button type="button" on:click={() => {}}>
+                    <button type="button" on:click={() => removeGroup(groupIndex)}>
                         <FontAwesome name="trash-can" type="regular" />
                     </button>
-                    <button type="button" on:click={() => {}}>
+                    <button type="button" on:click={() => uncheckGroup(groupIndex)}>
                         <FontAwesome name="square" type="regular" />
                     </button>
-                    <button type="button" on:click={() => {}}>
+                    <button type="button" on:click={() => checkGroup(groupIndex)}>
                         <FontAwesome name="square-check" type="regular" />
                     </button>
                 </div>
@@ -150,24 +201,23 @@
                         <FontAwesome name="grip-vertical" />
                     </div>
                     <label class="list-label">
-                        <input type="checkbox" bind:checked={item.checked} on:change={(e) => { onCheckItem(e); console.log(item.checked) }} />
-                        {#if item.checked}
-                            is check
-                        {:else}
-                            !check
-                        {/if}
-                        <!-- <div class="list-checkbox">
+                        <input
+                            type="checkbox"
+                            {checked}
+                            on:change={() => onCheckItem(groupIndex, itemIndex)}
+                        />
+                        <div class="list-checkbox">
                             {#if checked}
                                 <FontAwesome name="check" />
                             {/if}
-                        </div> -->
+                        </div>
                         <div class="list-item-info">
                             <input
                                 class="list-item-name"
                                 type="text"
                                 placeholder="New item"
                                 {value}
-                                on:input={(e) => editItem(groupIndex, itemIndex, { ...item, value: e.currentTarget.value })}
+                                on:input={(e) => editItem(e, groupIndex, itemIndex)}
                             />
                             {#if timestamp}
                                 <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
@@ -202,10 +252,13 @@
         </button>
     </div>
     <div class="toolbar-right">
-        <button type="button" on:click={() => {}}>
+        <button type="button" on:click={removeAll}>
+            <FontAwesome name="trash-can" type="regular" />
+        </button>
+        <button type="button" on:click={uncheckAll}>
             <FontAwesome name="square" type="regular" />
         </button>
-        <button type="button" on:click={() => {}}>
+        <button type="button" on:click={checkAll}>
             <FontAwesome name="square-check" type="regular" />
         </button>
         <button type="button">
@@ -354,7 +407,7 @@
         // }
 
         &.checked {
-            order: 1;
+            // order: 1;
             filter: brightness(0.5);
         }
 

@@ -7,7 +7,7 @@ export const transitioning = writable<TransitioningTypes>(null);
 type OnKeydownType = ((event: KeyboardEvent) => void);
 export const onKeydown = writable<OnKeydownType>(() => {});
 
-type StoreContract<T> = {
+export type StoreContract<T> = {
     subscribe(this: void, run: Subscriber<T>): Unsubscriber;
     set(this: void, value: T): void;
     update(this: void, updater: Updater<T>): void;

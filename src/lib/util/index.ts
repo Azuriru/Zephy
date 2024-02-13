@@ -17,3 +17,6 @@ export const stringify = (str: string) => normalize(str).toLowerCase().replace(/
 export const color = (str: string) => str.slice(4, -1).split(', ').map(Number);
 
 export const hsl = (str: string) => str.slice(4, -1).split(', ').map(s => parseInt(s));
+
+type JSONValue = null | boolean | number | string | JSONValue[] | { [k: string]: JSONValue };
+export const clone = (object: JSONValue) => JSON.parse(JSON.stringify(object));

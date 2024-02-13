@@ -8,6 +8,9 @@ devDependencies:
   '@fortawesome/fontawesome-free':
     specifier: ^6.4.2
     version: 6.5.1
+  '@stylistic/eslint-plugin-js':
+    specifier: ^1.6.1
+    version: 1.6.1(eslint@8.56.0)
   '@sveltejs/adapter-vercel':
     specifier: ^4.0.0
     version: 4.0.5(@sveltejs/kit@2.3.3)
@@ -550,6 +553,19 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@stylistic/eslint-plugin-js@1.6.1(eslint@8.56.0):
+    resolution: {integrity: sha512-gHRxkbA5p8S1fnChE7Yf5NFltRZCzbCuQOcoTe93PSKBC4GqVjZmlWUSLz9pJKHvDAUTjWkfttWHIOaFYPEhRQ==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      eslint: '>=8.40.0'
+    dependencies:
+      acorn: 8.11.3
+      escape-string-regexp: 4.0.0
+      eslint: 8.56.0
+      eslint-visitor-keys: 3.4.3
+      espree: 9.6.1
+    dev: true
 
   /@sveltejs/adapter-vercel@4.0.5(@sveltejs/kit@2.3.3):
     resolution: {integrity: sha512-SABZvRry8pUggFrBLbIi88dCH5gP3M0O/8HvvLjOTCwTVn3E8H1ppJ8ujhj8xNuoi4rm9JVy6qYSYp2EsgOugw==}
