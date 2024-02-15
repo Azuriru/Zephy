@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { debug } from '.';
 import { centralizedKey } from './store';
 import assert from 'assertmin';
 
@@ -41,12 +42,15 @@ type CheckEvent = {
     itemIndex: number;
     groupIndex: number;
     previous: Item;
+    edited: Item;
 };
 
 type UncheckEvent = {
     type: 'uncheck';
     itemIndex: number;
     groupIndex: number;
+    previous: Item;
+    edited: Item;
 };
 
 type AddGroupEvent = {
@@ -71,12 +75,14 @@ type EditGroupEvent = {
 type CheckGroupEvent = {
     type: 'check-group';
     groupIndex: number;
+    edited: Group;
     previous: Group;
 };
 
 type UncheckGroupEvent = {
     type: 'uncheck-group';
     groupIndex: number;
+    edited: Group;
     previous: Group;
 };
 
@@ -88,11 +94,13 @@ type RemoveAllEvent = {
 type CheckAllEvent = {
     type: 'check-all';
     previous: Group[];
+    edited: Group[];
 };
 
 type UncheckAllEvent = {
     type: 'uncheck-all';
     previous: Group[];
+    edited: Group[];
 };
 
 type ItemEvents = AddEvent | RemoveEvent | EditEvent | CheckEvent | UncheckEvent;
@@ -102,8 +110,8 @@ type Event = ItemEvents | GroupEvents | RemoveAllEvent | CheckAllEvent | Uncheck
 export type Item = {
     value: string;
     id: number;
-    checked?: boolean;
-    timestamp?: number;
+    checked: boolean;
+    timestamp: number | null;
 };
 
 export type Group = {
@@ -219,10 +227,8 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
                 break;
             case 'edit':
             case 'check':
-                this.state.groups[event.groupIndex].items[event.itemIndex] = event.previous;
-                break;
             case 'uncheck':
-                this.state.groups[event.groupIndex].items[event.itemIndex].checked = true;
+                this.state.groups[event.groupIndex].items[event.itemIndex] = event.previous;
                 break;
             case 'add-group':
                 this.state.groups.splice(event.groupIndex, 1);
@@ -264,14 +270,9 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
                 this.state.groups[event.groupIndex].items.splice(event.itemIndex, 1);
                 break;
             case 'edit':
-                this.state.groups[event.groupIndex].items[event.itemIndex] = event.edited;
-                break;
             case 'check':
-                this.state.groups[event.groupIndex].items[event.itemIndex].checked = true;
-                this.state.groups[event.groupIndex].items[event.itemIndex].timestamp = Date.now();
-                break;
             case 'uncheck':
-                this.state.groups[event.groupIndex].items[event.itemIndex].checked = false;
+                this.state.groups[event.groupIndex].items[event.itemIndex] = event.edited;
                 break;
             case 'add-group':
                 this.state.groups.push(event.group);
@@ -280,36 +281,16 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
                 this.state.groups.splice(event.groupIndex, 1);
                 break;
             case 'edit-group':
-                this.state.groups[event.groupIndex] = event.edited;
-                break;
             case 'check-group':
-                for (const item of this.state.groups[event.groupIndex].items) {
-                    item.checked = true;
-                    item.timestamp = Date.now();
-                }
-                break;
             case 'uncheck-group':
-                for (const item of this.state.groups[event.groupIndex].items) {
-                    item.checked = false;
-                }
-                break;
+                this.state.groups[event.groupIndex] = event.edited;
+                break
             case 'remove-all':
                 this.state.groups = [];
                 break;
             case 'check-all':
-                for (const group of this.state.groups) {
-                    for (const item of group.items) {
-                        item.checked = true;
-                        item.timestamp = Date.now();
-                    }
-                }
-                break;
             case 'uncheck-all':
-                for (const group of this.state.groups) {
-                    for (const item of group.items) {
-                        item.checked = false;
-                    }
-                }
+                this.state.groups = event.edited;
                 break;
             default:
                 assert.unreachable(event);
