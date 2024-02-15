@@ -1,13 +1,13 @@
 <script lang="ts">
-    import { TodosHistory } from '$lib/util/list';
+    import { type Group, TodosHistory } from '$lib/util/list';
     import { FontAwesome } from '$lib/components';
-    import { capitalize, clone } from '$lib/util';
+    import { capitalize, clone, debug } from '$lib/util';
     import { readable } from 'svelte/store';
 
-    type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement; }
+    type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
     const todosHistory = readable<TodosHistory>(null as never, (set) => {
-        const hist = new TodosHistory((set), {
+        const hist = new TodosHistory(set, {
             groups: []
         });
 
@@ -30,7 +30,9 @@
 
         const pad = (number: number) => number.toString().padStart(2, '0');
 
-        return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(month + 1)}/${year}`;
+        return `${pad(h)}:${pad(m)}:${pad(s)} ${pad(date)}/${pad(
+            month + 1
+        )}/${year}`;
     }
 
     function addItem(groupIndex: number) {
@@ -40,7 +42,9 @@
             groupIndex,
             item: {
                 value: '',
-                id: Math.floor(Math.random() * 1e20)
+                id: Math.floor(Math.random() * 1e20),
+                checked: false,
+                timestamp: null
             }
         });
     }
@@ -50,7 +54,7 @@
             type: 'remove',
             itemIndex,
             groupIndex,
-            removed: $todosHistory.state.groups[groupIndex].items[itemIndex]
+            removed: clone($todosHistory.state.groups[groupIndex].items[itemIndex])
         });
     }
 
@@ -74,6 +78,11 @@
             groupIndex,
             previous: {
                 ...$todosHistory.state.groups[groupIndex].items[itemIndex]
+            },
+            edited: {
+                ...$todosHistory.state.groups[groupIndex].items[itemIndex],
+                checked: true,
+                timestamp:  Date.now()
             }
         });
     }
@@ -82,7 +91,15 @@
         $todosHistory.do({
             type: 'uncheck',
             itemIndex,
-            groupIndex
+            groupIndex,
+            previous: {
+                ...$todosHistory.state.groups[groupIndex].items[itemIndex]
+            },
+            edited: {
+                ...$todosHistory.state.groups[groupIndex].items[itemIndex],
+                checked: false,
+                timestamp: null
+            }
         });
     }
 
@@ -110,7 +127,7 @@
         $todosHistory.do({
             type: 'remove-group',
             groupIndex,
-            removed: $todosHistory.state.groups[groupIndex]
+            removed: clone($todosHistory.state.groups[groupIndex])
         });
     }
 
@@ -118,7 +135,7 @@
         $todosHistory.do({
             type: 'edit-group',
             groupIndex,
-            previous: $todosHistory.state.groups[groupIndex],
+            previous: clone($todosHistory.state.groups[groupIndex]),
             edited: {
                 ...$todosHistory.state.groups[groupIndex],
                 name: capitalize(e.currentTarget.value)
@@ -127,18 +144,38 @@
     }
 
     function checkGroup(groupIndex: number) {
+        // if ($todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
+
+        const edited: Group = clone($todosHistory.state.groups[groupIndex]);
+
+        for (const item of edited.items) {
+            item.checked = true;
+            item.timestamp = Date.now();
+        }
+
         $todosHistory.do({
             type: 'check-group',
             groupIndex,
-            previous: clone($todosHistory.state.groups[groupIndex])
+            previous: clone($todosHistory.state.groups[groupIndex]),
+            edited
         });
     }
 
     function uncheckGroup(groupIndex: number) {
+        // if (!$todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
+
+        const edited: Group = clone($todosHistory.state.groups[groupIndex]);
+
+        for (const item of edited.items) {
+            item.checked = false;
+            item.timestamp = null;
+        }
+
         $todosHistory.do({
             type: 'uncheck-group',
             groupIndex,
-            previous: clone($todosHistory.state.groups[groupIndex])
+            previous: clone($todosHistory.state.groups[groupIndex]),
+            edited
         });
     }
 
@@ -150,18 +187,44 @@
     }
 
     function checkAll() {
+        // if ($todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+
+        const edited: Group[] = clone($todosHistory.state.groups);
+
+        for (const group of edited) {
+            for (const item of group.items) {
+                item.checked = true;
+                item.timestamp = Date.now();
+            }
+        }
+
         $todosHistory.do({
             type: 'check-all',
-            previous: clone($todosHistory.state.groups)
+            previous: clone($todosHistory.state.groups),
+            edited
         });
     }
 
     function uncheckAll() {
+        // if (!$todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+
+        const edited: Group[] = clone($todosHistory.state.groups);
+
+        for (const group of edited) {
+            for (const item of group.items) {
+                item.checked = false;
+                item.timestamp = null;
+            }
+        }
+
         $todosHistory.do({
-            type: 'uncheck-all',
-            previous: clone($todosHistory.state.groups)
+            type: 'check-all',
+            previous: clone($todosHistory.state.groups),
+            edited
         });
     }
+
+// $: console.log('groups', $todosHistory.state.groups);
 </script>
 
 <div class="list">
@@ -182,13 +245,22 @@
                     on:input={(e) => editGroup(e, groupIndex)}
                 />
                 <div class="list-group-actions">
-                    <button type="button" on:click={() => removeGroup(groupIndex)}>
+                    <button
+                        type="button"
+                        on:click={() => removeGroup(groupIndex)}
+                    >
                         <FontAwesome name="trash-can" type="regular" />
                     </button>
-                    <button type="button" on:click={() => uncheckGroup(groupIndex)}>
+                    <button
+                        type="button"
+                        on:click={() => uncheckGroup(groupIndex)}
+                    >
                         <FontAwesome name="square" type="regular" />
                     </button>
-                    <button type="button" on:click={() => checkGroup(groupIndex)}>
+                    <button
+                        type="button"
+                        on:click={() => checkGroup(groupIndex)}
+                    >
                         <FontAwesome name="square-check" type="regular" />
                     </button>
                 </div>
@@ -216,19 +288,30 @@
                                 type="text"
                                 placeholder="New item"
                                 {value}
-                                on:input={(e) => editItem(e, groupIndex, itemIndex)}
+                                on:input={(e) =>
+                                    editItem(e, groupIndex, itemIndex)}
                             />
                             {#if timestamp}
-                                <span class="list-item-timestamp">{formatTimestamp(timestamp)}</span>
+                                <span class="list-item-timestamp">
+                                    {formatTimestamp(timestamp)}
+                                </span>
                             {/if}
                         </div>
                     </label>
-                    <button type="button" class="list-item-remove" on:click={() => removeItem(groupIndex, itemIndex)}>
+                    <button
+                        type="button"
+                        class="list-item-remove"
+                        on:click={() => removeItem(groupIndex, itemIndex)}
+                    >
                         <FontAwesome name="xmark" />
                     </button>
                 </div>
             {/each}
-            <button type="button" class="list-last" on:click={() => addItem(groupIndex)}>
+            <button
+                type="button"
+                class="list-last"
+                on:click={() => addItem(groupIndex)}
+            >
                 <div class="list-plus">
                     <FontAwesome name="plus" />
                 </div>
@@ -243,10 +326,20 @@
         <button type="button" on:click={() => addGroup()}>
             <FontAwesome name="square-plus" type="regular" />
         </button>
-        <button type="button" class="history-control" on:click={() => $todosHistory.undo()} disabled={$todosHistory.index === 0}>
+        <button
+            type="button"
+            class="history-control"
+            on:click={() => $todosHistory.undo()}
+            disabled={$todosHistory.index === 0}
+        >
             <FontAwesome name="arrow-rotate-left" />
         </button>
-        <button type="button" class="history-control" on:click={() => $todosHistory.redo()} disabled={$todosHistory.index === $todosHistory.events.length}>
+        <button
+            type="button"
+            class="history-control"
+            on:click={() => $todosHistory.redo()}
+            disabled={$todosHistory.index === $todosHistory.events.length}
+        >
             <FontAwesome name="arrow-rotate-right" />
         </button>
     </div>
@@ -267,7 +360,7 @@
 </div>
 
 <style lang="scss">
-    @use "sass:list";
+    @use 'sass:list';
     @mixin flex($props...) {
         @if list.index($props, hidden) {
             display: none;
@@ -316,7 +409,7 @@
     $cube: 36px;
     $checkbox: 24px;
     $hover: #272727;
-    $hover-transition: background-color .5s;
+    $hover-transition: background-color 0.5s;
 
     .toolbar {
         @include flex(between);
@@ -402,7 +495,7 @@
         }
 
         // &:not(:nth-last-of-type(2)) {
-            margin-bottom: 4px;
+        margin-bottom: 4px;
         // }
 
         &.checked {

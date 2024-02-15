@@ -21,4 +21,4 @@ export const hsl = (str: string) => str.slice(4, -1).split(', ').map(s => parseI
 type JSONValue = null | boolean | number | string | JSONValue[] | { [k: string]: JSONValue };
 export const clone = (object: JSONValue) => JSON.parse(JSON.stringify(object));
 
-export const debug = (val: any) => console.log(JSON.stringify(val, null, 4));
+export const debug = (...vals: any) => vals.forEach((val: any) => console.log(JSON.stringify(val, null, 4)));
