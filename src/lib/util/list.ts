@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { debug } from '.';
+import { clone } from '.';
 import { centralizedKey } from './store';
 import assert from 'assertmin';
 
@@ -275,7 +275,7 @@ export class TodosHistory implements HistoryStack<State | null, Event> {
                 this.state.groups[event.groupIndex].items[event.itemIndex] = event.edited;
                 break;
             case 'add-group':
-                this.state.groups.push(event.group);
+                this.state.groups.push(clone(event.group));
                 break;
             case 'remove-group':
                 this.state.groups.splice(event.groupIndex, 1);
