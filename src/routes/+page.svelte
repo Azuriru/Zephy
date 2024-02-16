@@ -144,7 +144,7 @@
     }
 
     function checkGroup(groupIndex: number) {
-        // if ($todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
+        if ($todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
 
         const edited: Group = clone($todosHistory.state.groups[groupIndex]);
 
@@ -162,7 +162,7 @@
     }
 
     function uncheckGroup(groupIndex: number) {
-        // if (!$todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
+        if (!$todosHistory.state.groups[groupIndex].items.every((item) => item.checked)) return;
 
         const edited: Group = clone($todosHistory.state.groups[groupIndex]);
 
@@ -187,7 +187,7 @@
     }
 
     function checkAll() {
-        // if ($todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+        if ($todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
 
         const edited: Group[] = clone($todosHistory.state.groups);
 
@@ -206,7 +206,7 @@
     }
 
     function uncheckAll() {
-        // if (!$todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+        if (!$todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
 
         const edited: Group[] = clone($todosHistory.state.groups);
 
