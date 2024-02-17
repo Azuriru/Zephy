@@ -1,7 +1,7 @@
 <script lang="ts">
     import { type Group, TodosHistory } from '$lib/util/list';
     import { FontAwesome } from '$lib/components';
-    import { capitalize, clone, debug } from '$lib/util';
+    import { capitalize, clone } from '$lib/util';
     import { readable } from 'svelte/store';
 
     type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
@@ -240,27 +240,19 @@
                 <input
                     class="list-group-input"
                     type="text"
+                    name="group-name"
                     placeholder="New group"
                     {value}
                     on:input={(e) => editGroup(e, groupIndex)}
                 />
                 <div class="list-group-actions">
-                    <button
-                        type="button"
-                        on:click={() => removeGroup(groupIndex)}
-                    >
+                    <button type="button" on:click={() => removeGroup(groupIndex)}>
                         <FontAwesome name="trash-can" type="regular" />
                     </button>
-                    <button
-                        type="button"
-                        on:click={() => uncheckGroup(groupIndex)}
-                    >
+                    <button type="button" on:click={() => uncheckGroup(groupIndex)}>
                         <FontAwesome name="square" type="regular" />
                     </button>
-                    <button
-                        type="button"
-                        on:click={() => checkGroup(groupIndex)}
-                    >
+                    <button type="button" on:click={() => checkGroup(groupIndex)}>
                         <FontAwesome name="square-check" type="regular" />
                     </button>
                 </div>
@@ -274,6 +266,7 @@
                     <label class="list-label">
                         <input
                             type="checkbox"
+                            name="item-checkbox"
                             {checked}
                             on:change={() => onCheckItem(groupIndex, itemIndex)}
                         />
@@ -286,10 +279,10 @@
                             <input
                                 class="list-item-name"
                                 type="text"
+                                name="item-name"
                                 placeholder="New item"
                                 {value}
-                                on:input={(e) =>
-                                    editItem(e, groupIndex, itemIndex)}
+                                on:input={(e) => editItem(e, groupIndex, itemIndex)}
                             />
                             {#if timestamp}
                                 <span class="list-item-timestamp">
@@ -329,16 +322,16 @@
         <button
             type="button"
             class="history-control"
-            on:click={() => $todosHistory.undo()}
             disabled={$todosHistory.index === 0}
+            on:click={() => $todosHistory.undo()}
         >
             <FontAwesome name="arrow-rotate-left" />
         </button>
         <button
             type="button"
             class="history-control"
-            on:click={() => $todosHistory.redo()}
             disabled={$todosHistory.index === $todosHistory.events.length}
+            on:click={() => $todosHistory.redo()}
         >
             <FontAwesome name="arrow-rotate-right" />
         </button>
