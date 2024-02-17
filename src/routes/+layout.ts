@@ -1,11 +1,13 @@
 import { Load } from '@sveltejs/kit';
-import { loadTranslations } from '$lib/i18n/index';
+import { defaultLocale, loadTranslations, locale } from '$lib/i18n';
+import { persistibles } from '$lib/util/store';
+import { get } from 'svelte/store';
 
 export const load: Load = async ({ url }) => {
-    const { pathname } = url;
+    const language = persistibles('language', defaultLocale);
+    const initLocale = locale.get() || get(language);
 
-    const initLocale = 'en'; // get from cookie, user session, ...
+    await loadTranslations(initLocale, url.pathname);
 
-    await loadTranslations(initLocale, pathname); // keep this just before the `return`
     return {};
-}
+};

@@ -1,11 +1,22 @@
 <script lang="ts">
-    import { type Group, TodosHistory } from '$lib/util/list';
-    import { FontAwesome } from '$lib/components';
-    import { capitalize, clone } from '$lib/util';
     import { readable } from 'svelte/store';
+    import { type Group, TodosHistory } from '$lib/util/list';
+    import { capitalize, clone } from '$lib/util';
+    import { persistibles } from '$lib/util/store';
+    import { locale, t } from '$lib/i18n';
+    import langs from '$lib/i18n/lang.json';
+    import { FontAwesome } from '$lib/components';
+
+    const language = persistibles<string>('language', 'en');
+
+    function onLanguageChange (language: string){
+        $locale = language;
+        $language = language;
+    }
 
     type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
+    let dark = false;
     const todosHistory = readable<TodosHistory>(null as never, (set) => {
         const hist = new TodosHistory(set, {
             groups: []
@@ -223,194 +234,231 @@
             edited
         });
     }
-
-// $: console.log('groups', $todosHistory.state.groups);
 </script>
 
-<div class="list">
-    {#if !$todosHistory.state.groups.length}
-        <div class="list-empty">
-            There's nothing here, consider adding something?
-        </div>
-    {/if}
-    {#each $todosHistory.state.groups as group, groupIndex (group.id)}
-        {@const { name: value, items } = group}
-        <div class="list-group">
-            <div class="list-header">
-                <input
-                    class="list-group-input"
-                    type="text"
-                    name="group-name"
-                    placeholder="New group"
-                    {value}
-                    on:input={(e) => editGroup(e, groupIndex)}
-                />
-                <div class="list-group-actions">
-                    <button type="button" on:click={() => removeGroup(groupIndex)}>
-                        <FontAwesome name="trash-can" type="regular" />
-                    </button>
-                    <button type="button" on:click={() => uncheckGroup(groupIndex)}>
-                        <FontAwesome name="square" type="regular" />
-                    </button>
-                    <button type="button" on:click={() => checkGroup(groupIndex)}>
-                        <FontAwesome name="square-check" type="regular" />
-                    </button>
-                </div>
+<div class="list-app" class:light={!dark}>
+    <div class="list">
+        {#if !$todosHistory.state.groups.length}
+            <div class="list-empty">
+                There's nothing here, consider adding something?
             </div>
-            {#each items as item, itemIndex (item.id)}
-                {@const { value, checked, timestamp } = item}
-                <div class="list-item" class:checked>
-                    <div class="list-drag">
-                        <FontAwesome name="grip-vertical" />
+        {/if}
+        {#each $todosHistory.state.groups as group, groupIndex (group.id)}
+            {@const { name: value, items } = group}
+            <div class="list-group">
+                <div class="list-header">
+                    <input
+                        class="list-group-input"
+                        type="text"
+                        name="group-name"
+                        placeholder={$t('list.group-placeholder')}
+                        {value}
+                        on:input={(e) => editGroup(e, groupIndex)}
+                    />
+                    <div class="list-group-actions">
+                        <button type="button" on:click={() => removeGroup(groupIndex)}>
+                            <FontAwesome name="trash-can" type="regular" />
+                        </button>
+                        <button type="button" on:click={() => uncheckGroup(groupIndex)}>
+                            <FontAwesome name="square" type="regular" />
+                        </button>
+                        <button type="button" on:click={() => checkGroup(groupIndex)}>
+                            <FontAwesome name="square-check" type="regular" />
+                        </button>
                     </div>
-                    <label class="list-label">
-                        <input
-                            type="checkbox"
-                            name="item-checkbox"
-                            {checked}
-                            on:change={() => onCheckItem(groupIndex, itemIndex)}
-                        />
-                        <div class="list-checkbox">
-                            {#if checked}
-                                <FontAwesome name="check" />
-                            {/if}
-                        </div>
-                        <div class="list-item-info">
-                            <input
-                                class="list-item-name"
-                                type="text"
-                                name="item-name"
-                                placeholder="New item"
-                                {value}
-                                on:input={(e) => editItem(e, groupIndex, itemIndex)}
-                            />
-                            {#if timestamp}
-                                <span class="list-item-timestamp">
-                                    {formatTimestamp(timestamp)}
-                                </span>
-                            {/if}
-                        </div>
-                    </label>
-                    <button
-                        type="button"
-                        class="list-item-remove"
-                        on:click={() => removeItem(groupIndex, itemIndex)}
-                    >
-                        <FontAwesome name="xmark" />
-                    </button>
                 </div>
-            {/each}
+                {#each items as item, itemIndex (item.id)}
+                    {@const { value, checked, timestamp } = item}
+                    <div class="list-item" class:checked>
+                        <div class="list-drag">
+                            <FontAwesome name="grip-vertical" />
+                        </div>
+                        <label class="list-label">
+                            <input
+                                type="checkbox"
+                                name="item-checkbox"
+                                {checked}
+                                on:change={() => onCheckItem(groupIndex, itemIndex)}
+                            />
+                            <div class="list-checkbox">
+                                {#if checked}
+                                    <FontAwesome name="check" />
+                                {/if}
+                            </div>
+                            <div class="list-item-info">
+                                <input
+                                    class="list-item-name"
+                                    type="text"
+                                    name="item-name"
+                                    placeholder={$t('list.item-placeholder')}
+                                    {value}
+                                    on:input={(e) => editItem(e, groupIndex, itemIndex)}
+                                />
+                                {#if timestamp}
+                                    <span class="list-item-timestamp">
+                                        {formatTimestamp(timestamp)}
+                                    </span>
+                                {/if}
+                            </div>
+                        </label>
+                        <button
+                            type="button"
+                            class="list-item-remove"
+                            on:click={() => removeItem(groupIndex, itemIndex)}
+                        >
+                            <FontAwesome name="xmark" />
+                        </button>
+                    </div>
+                {/each}
+                <button
+                    type="button"
+                    class="list-last"
+                    on:click={() => addItem(groupIndex)}
+                >
+                    <div class="list-plus">
+                        <FontAwesome name="plus" />
+                    </div>
+                    <span class="list-plus-text">{$t('list.item-add')}</span>
+                </button>
+            </div>
+        {/each}
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button type="button" on:click={() => addGroup()}>
+                <FontAwesome name="square-plus" type="regular" />
+            </button>
             <button
                 type="button"
-                class="list-last"
-                on:click={() => addItem(groupIndex)}
+                class="history-control"
+                disabled={$todosHistory.index === 0}
+                on:click={() => $todosHistory.undo()}
             >
-                <div class="list-plus">
-                    <FontAwesome name="plus" />
-                </div>
-                <span class="list-plus-text">Add item</span>
+                <FontAwesome name="arrow-rotate-left" />
+            </button>
+            <button
+                type="button"
+                class="history-control"
+                disabled={$todosHistory.index === $todosHistory.events.length}
+                on:click={() => $todosHistory.redo()}
+            >
+                <FontAwesome name="arrow-rotate-right" />
             </button>
         </div>
-    {/each}
-</div>
+        <div class="toolbar-right">
+            <!-- {#each Object.keys(langs) as language (language)}
+                <button type="button" on:click={() => onLanguageChange(language)}>{langs[language]}</button>
+            {/each} -->
+            <input
+                type="checkbox"
+                name="item-checkbox"
+                on:change={() => dark = !dark}
+            />
+            <button type="button" on:click={removeAll}>
+                <FontAwesome name="trash-can" type="regular" />
+            </button>
+            <button type="button" on:click={uncheckAll}>
+                <FontAwesome name="square" type="regular" />
+            </button>
+            <button type="button" on:click={checkAll}>
+                <FontAwesome name="square-check" type="regular" />
+            </button>
+            <button type="button">
+                <FontAwesome name="sliders" />
+            </button>
+        </div>
+    </div>
 
-<div class="toolbar">
-    <div class="toolbar-left">
-        <button type="button" on:click={() => addGroup()}>
-            <FontAwesome name="square-plus" type="regular" />
-        </button>
-        <button
-            type="button"
-            class="history-control"
-            disabled={$todosHistory.index === 0}
-            on:click={() => $todosHistory.undo()}
-        >
-            <FontAwesome name="arrow-rotate-left" />
-        </button>
-        <button
-            type="button"
-            class="history-control"
-            disabled={$todosHistory.index === $todosHistory.events.length}
-            on:click={() => $todosHistory.redo()}
-        >
-            <FontAwesome name="arrow-rotate-right" />
-        </button>
+    <div class="settings">
+        <div />
     </div>
-    <div class="toolbar-right">
-        <button type="button" on:click={removeAll}>
-            <FontAwesome name="trash-can" type="regular" />
-        </button>
-        <button type="button" on:click={uncheckAll}>
-            <FontAwesome name="square" type="regular" />
-        </button>
-        <button type="button" on:click={checkAll}>
-            <FontAwesome name="square-check" type="regular" />
-        </button>
-        <button type="button">
-            <FontAwesome name="sliders" />
-        </button>
-    </div>
+
 </div>
 
 <style lang="scss">
-    @use 'sass:list';
-    @mixin flex($props...) {
-        @if list.index($props, hidden) {
-            display: none;
-        } @else {
-            display: flex;
-        }
-
-        @each $prop in $props {
-            @if $prop == center {
-                align-items: center;
-                justify-content: center;
-            } @else if $prop == startY {
-                align-items: flex-start;
-            } @else if $prop == centerY {
-                align-items: center;
-            } @else if $prop == endY {
-                align-items: flex-end;
-            } @else if $prop == startX {
-                justify-content: flex-start;
-            } @else if $prop == centerX {
-                justify-content: center;
-            } @else if $prop == endX {
-                justify-content: flex-end;
-            } @else if $prop == between {
-                justify-content: space-between;
-            } @else if $prop == around {
-                justify-content: space-around;
-            } @else if $prop == evenly {
-                justify-content: space-evenly;
-            } @else if $prop == column {
-                flex-direction: column;
-            } @else if $prop == 1 or $prop == one {
-                flex: 1 1 0%;
-            } @else if $prop == auto {
-                flex: 1 1 auto;
-            } @else if $prop == initial {
-                flex: 0 1 auto;
-            } @else if $prop == none {
-                flex: none;
-            } @else if $prop == noShrink {
-                flex-shrink: 0;
-            }
-        }
+    .list-app {
+        --background: #181818;
+        --color: #eee;
+        --color-accent: #848484;
+        --color-placeholder: #ffffff4d;
+        --color-outer: var(--color);
+        --color-outer-placeholder: var(--color-placeholder);
+        --item-background: transparent;
+        --item-background-hover: #272727;
+        --selection-background: #00ffff80;
+        --toolbar-background: #20232c;
+        --checkbox-background: #ffffff1a;
+        --checkbox-checked: #009d9d;
+        --checkbox-border: transparent;
+        --checkbox-border-checked: transparent;
+        --radius: 0;
     }
+
+    .list-app.light {
+        --background: linear-gradient(to bottom right, #5ab3ae, #74B4B4);
+        --color: black;
+        --color-accent: #848484;
+        --color-placeholder: #00000080;
+        --color-outer: white;
+        --color-outer-placeholder: #ffffff80;
+        --item-background: #fcfcfc;
+        --item-background-hover: #96d6d6;
+        --selection-background: #00ffff80;
+        --toolbar-background: #009797;
+        --checkbox-background: #0000000d;
+        --checkbox-border: var(--color);
+        --checkbox-border-checked: var(--checkbox-checked);
+        --checkbox-checked: #009d9d;
+        --radius: 4px;
+        font-weight: 500;
+    }
+
+    // Colors
+    $selection: var(--selection-background);
+    $background: var(--background);
+    $color: var(--color);
+    $color-accent: var(--color-accent);
+    $color-placeholder: var(--color-placeholder);
+    $color-outer: var(--color-outer);
+    $color-outer-placeholder: var(--color-outer-placeholder);
+    $item-background: var(--item-background);
+    $item-background-hover: var(--item-background-hover);
+    $item-transition: background-color 0.5s;
+    $toolbar-background: var(--toolbar-background);
+    $checkbox-background: var(--checkbox-background);
+    $checkbox-checked: var(--checkbox-checked);
+    $checkbox-border: var(--checkbox-border);
+    $checkbox-border-checked: var(--checkbox-border-checked);
+    $radius: var(--radius);
 
     $cube: 36px;
     $checkbox: 24px;
-    $hover: #272727;
-    $hover-transition: background-color 0.5s;
+
+    ::selection {
+        background-color: $selection;
+    }
+
+    ::placeholder {
+        color: $color-placeholder;
+    }
+
+    .list-app {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: $background;
+        color: $color;
+    }
 
     .toolbar {
         @include flex(between);
-        background: #20232c;
         padding: 8px;
         position: sticky;
         bottom: 0;
         top: 100%;
+        background: $toolbar-background;
+        color: $color-outer;
         font-size: 24px;
 
         .toolbar-left,
@@ -426,21 +474,23 @@
             font-size: 20px;
 
             &:disabled {
-                filter: brightness(0.5);
+                filter: opacity(0.5);
             }
         }
     }
 
     .list {
+        flex-grow: 1;
         padding: 40px 20px;
         overflow: auto;
-        flex-grow: 1;
     }
 
     .list-empty {
         @include flex(center, one);
         text-align: center;
+        color: $color-outer;
     }
+
     .list,
     .list-group,
     .list-item-info {
@@ -455,6 +505,11 @@
         @include flex(between);
         padding: 0 8px 0 6px;
         margin-bottom: 10px;
+        color: $color-outer;
+
+        ::placeholder {
+            color: $color-outer-placeholder;
+        }
 
         .list-group-input {
             @include flex;
@@ -480,11 +535,13 @@
     .list-item {
         @include flex;
         height: 36px;
-        transition: $hover-transition;
+        border-radius: $radius;
+        background: $item-background;
+        transition: $item-transition;
 
         &:hover,
         &:active {
-            background: $hover;
+            background: $item-background-hover;
         }
 
         // &:not(:nth-last-of-type(2)) {
@@ -493,7 +550,7 @@
 
         &.checked {
             // order: 1;
-            filter: brightness(0.5);
+            // filter: opacity(0.5);
         }
 
         .list-drag {
@@ -511,9 +568,17 @@
                     @include flex(center, noShrink);
                     width: $checkbox;
                     height: $checkbox;
-                    background: rgb(255, 255, 255, 0.1);
-                    color: #34d399;
                     margin-right: 8px;
+                    background: $checkbox-background;
+                    border: 2px solid $checkbox-border;
+                    border-radius: $radius;
+                    color: white;
+                }
+
+                &:checked + .list-checkbox {
+                    border-color: $checkbox-border-checked;
+                    color: $checkbox-checked;
+                    // background: $checkbox-background-checked;
                 }
             }
 
@@ -528,7 +593,7 @@
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     font-size: 12px;
-                    color: #848484;
+                    color: $color-accent;
                 }
             }
         }
@@ -545,11 +610,13 @@
         height: $cube;
         padding-left: $cube;
         order: 10;
-        transition: $hover-transition;
+        transition: $item-transition;
+        border-radius: $radius;
+        color: $color-outer;
 
         &:hover,
         &:active {
-            background: $hover;
+            background: $item-background-hover;
         }
 
         .list-plus {
