@@ -1,0 +1,45 @@
+@use "sass:list";
+@mixin flex($props...) {
+    @if list.index($props, hidden) {
+        display: none;
+    } @else {
+        display: flex;
+    }
+
+    @each $prop in $props {
+        @if $prop == center {
+            align-items: center;
+            justify-content: center;
+        } @else if $prop == startY {
+            align-items: flex-start;
+        } @else if $prop == centerY {
+            align-items: center;
+        } @else if $prop == endY {
+            align-items: flex-end;
+        } @else if $prop == startX {
+            justify-content: flex-start;
+        } @else if $prop == centerX {
+            justify-content: center;
+        } @else if $prop == endX {
+            justify-content: flex-end;
+        } @else if $prop == between {
+            justify-content: space-between;
+        } @else if $prop == around {
+            justify-content: space-around;
+        } @else if $prop == evenly {
+            justify-content: space-evenly;
+        } @else if $prop == column {
+            flex-direction: column;
+        } @else if $prop == 1 or $prop == one {
+            flex: 1 1 0%;
+        } @else if $prop == auto {
+            flex: 1 1 auto;
+        } @else if $prop == initial {
+            flex: 0 1 auto;
+        } @else if $prop == none {
+            flex: none;
+        } @else if $prop == noShrink {
+            flex-shrink: 0;
+        }
+    }
+}
