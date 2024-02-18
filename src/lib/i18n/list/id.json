@@ -1,0 +1,19 @@
+{
+    "empty": "Tidak terdapat apapun di sini, apakah anda ingin menambahkan sesuatu?",
+    "group-placeholder": "Kelompok Baru",
+    "item-placeholder": "Item Baru",
+    "item-add": "Tambahkan Item",
+    "remove-prompt": "Apakah anda yakin ingin menghapus {x}?",
+    "remove-confirm": "Ya",
+    "remove-decline": "Ga",
+    "settings": {
+        "dark": "Gelap",
+        "light": "Terang",
+        "show-drag": "Perlihatkan pegangan tarik secara default",
+        "show-remove-prompt": "Tampilkan prompt yang mengonfirmasi penghapusan item",
+        "dehoist": "Letakkan item yang dicentang ke bagian bawah daftar",
+        "merge-check-actions": "Gabungkan centang dan hapus centang menjadi satu",
+        "autofocus": "Secara otomatis memfokuskan kelompok dan item yang baru ditambahkan",
+        "strike-completed": "Coret item yang telah selesai"
+    }
+}
