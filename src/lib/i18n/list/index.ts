@@ -23,5 +23,10 @@ export default [
         locale: 'ru',
         key: 'list',
         loader: async () => (await import('./ru.json')).default
+    },
+    {
+        locale: 'tr',
+        key: 'list',
+        loader: async () => (await import('./ru.json')).default
     }
 ];

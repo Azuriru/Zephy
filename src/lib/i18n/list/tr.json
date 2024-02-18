@@ -1,0 +1,16 @@
+{
+    "empty": "Burada hiçbir şey yok.",
+    "group-placeholder": "Yeni grup",
+    "item-placeholder": "Yeni öge",
+    "item-add": "Öge ekle",
+    "settings": {
+        "dark": "Karanlık",
+        "light": "Aydınlık",
+        "show-drag": "Sürükleme düğmesini varsayılan olarak göster",
+        "show-remove-prompt": "Silmeden önce bir uyarı göster",
+        "dehoist": "İşaretlenen ögeleri listenin en altına taşı",
+        "merge-check-actions": "İşaretleme ve işaret kaldırma eylemini birleştir",
+        "autofocus": "Yeni eklenen grup ve ögelere otomatik olarak odaklan",
+        "strike-completed": "Tamamlanan ögelerin üstünü çiz"
+    }
+}
