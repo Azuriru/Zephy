@@ -1,0 +1,19 @@
+{
+    "empty": "這裡什麼都沒有，考慮添加點什麼嗎？",
+    "group-placeholder": "新建群組",
+    "item-placeholder": "新建項目",
+    "item-add": "添加項目",
+    "remove-prompt": "確認刪除 {x}？",
+    "remove-confirm": "確認",
+    "remove-decline": "取消",
+    "settings": {
+        "dark": "深色",
+        "light": "淺色",
+        "show-drag": "預設顯示拖曳桿",
+        "show-remove-prompt": "顯示確認刪除項目的提示",
+        "dehoist": "將選中的項目固定在列表底部",
+        "merge-check-actions": "將勾選和取消勾選合併為一個操作",
+        "autofocus": "自動聚焦在新建的群組和項目",
+        "strike-completed": "為完成的項目添加刪除線"
+    }
+}

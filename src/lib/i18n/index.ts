@@ -2,6 +2,8 @@ import { dev } from '$app/environment';
 import i18n, { Config } from 'sveltekit-i18n';
 import lang from './lang.json';
 
+import list from './list';
+
 export const defaultLocale = 'en';
 export const config: Config = {
     log: {
@@ -12,21 +14,7 @@ export const config: Config = {
         zh: { lang }
     },
     loaders: [
-        {
-            locale: 'en',
-            key: '',
-            loader: async () => (await import('./en/main.json')).default
-        },
-        {
-            locale: 'en',
-            key: 'list',
-            loader: async () => (await import('./en/list.json')).default
-        },
-        {
-            locale: 'zh',
-            key: 'list',
-            loader: async () => (await import('./zh/list.json')).default
-        }
+        ...list
     ]
 };
 

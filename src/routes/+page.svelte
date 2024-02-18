@@ -260,7 +260,7 @@
         if (e.target instanceof HTMLElement) {
             if (e.target.closest('.settings-button')) return;
 
-            if (!e.target.closest('.settings')) {
+            if (!e.target.closest('.settings-inner')) {
                 settingsHidden = true;
             }
         }
@@ -357,43 +357,47 @@
         {/each}
     </div>
 
+
     <div class="settings" class:hidden={settingsHidden}>
-        <button type="button" class="settings-close" on:click={() => settingsHidden = true}>
-            <MaterialSymbol name="close" />
-        </button>
-        <div class="settings-options">
-            <label class="settings-option">
-                <div class="settings-key">
-                    {$t('list.settings.dark')}
-                </div>
-                <input
-                    type="checkbox"
-                    name="settings-checkbox"
-                    checked={$settings.theme}
-                    on:change={() => $settings.theme = !$settings.theme}
-                />
-                <div class="settings-toggle" />
-                <div class="settings-key">
-                    {$t('list.settings.light')}
-                </div>
-            </label>
-            {#each Object.keys($settings).slice(1) as key (key)}
+        <div class="settings-overlay" />
+        <div class="settings-inner">
+            <button type="button" class="settings-close" on:click={() => settingsHidden = true}>
+                <MaterialSymbol name="close" />
+            </button>
+            <div class="settings-options">
                 <label class="settings-option">
                     <div class="settings-key">
-                        {$t(`list.settings.${key.replaceAll('_', '-')}`)}
+                        {$t('list.settings.dark')}
                     </div>
                     <input
                         type="checkbox"
                         name="settings-checkbox"
-                        checked={$settings[key]}
-                        on:change={() => $settings[key] = !$settings[key]}
+                        checked={$settings.theme}
+                        on:change={() => $settings.theme = !$settings.theme}
                     />
                     <div class="settings-toggle" />
+                    <div class="settings-key">
+                        {$t('list.settings.light')}
+                    </div>
                 </label>
-            {/each}
-        </div>
-        <div class="settings-language">
-            <MaterialSymbol name="language" />
+                {#each Object.keys($settings).slice(1) as key (key)}
+                    <label class="settings-option">
+                        <div class="settings-key">
+                            {$t(`list.settings.${key.replaceAll('_', '-')}`)}
+                        </div>
+                        <input
+                            type="checkbox"
+                            name="settings-checkbox"
+                            checked={$settings[key]}
+                            on:change={() => $settings[key] = !$settings[key]}
+                        />
+                        <div class="settings-toggle" />
+                    </label>
+                {/each}
+            </div>
+            <div class="settings-language">
+                <MaterialSymbol name="language" />
+            </div>
         </div>
     </div>
 
@@ -524,79 +528,104 @@
     }
 
     .settings {
-        @include flex(column);
-        background: #bfe9e863;
+        @include flex(endX);
         position: fixed;
         top: 0;
         bottom: 0;
-        /* left: 0; */
         right: 0;
+        left: 0;
         z-index: 1;
-        backdrop-filter: blur(26px);
         font-size: 14px;
-        transition: .5s transform, .5s box-shadow;
 
         &:not(.hidden) {
-            box-shadow: 0px 0px 20px 4px #00000080;
+            .settings-overlay {
+                opacity: 1;
+            }
+
+            .settings-inner {
+                box-shadow: 0px 0px 20px 4px #00000080;
+            }
         }
 
         &.hidden {
-            transform: translateX(100%);
+            pointer-events: none;
+
+            .settings-inner {
+                transform: translateX(100%);
+            }
         }
 
-        .settings-close {
-            @include flex(center);
-            align-self: flex-end;
-            height: 36px;
-            width: 36px;
-            font-size: 24px;
+        .settings-overlay {
+            backdrop-filter: blur(2px);
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            opacity: 0;
+            transition: .5s opacity;
         }
 
-        .settings-options {
-            @include flex(column, one);
+        .settings-inner {
+            @include flex(column);
+            backdrop-filter: blur(5px);
+            background: #bfe9e863;
+            transition: .5s transform, .5s box-shadow;
 
-            .settings-option {
-                @include flex(centerY, between);
-                padding: 0 20px;
+            .settings-close {
+                @include flex(center);
+                align-self: flex-end;
+                height: 36px;
+                width: 36px;
+                font-size: 24px;
+            }
 
-                &:not(:first-of-type) {
-                    margin-top: 4px;
-                }
-                &:first-of-type {
-                    margin-top: 10px;
-                }
+            .settings-options {
+                @include flex(column, one);
 
-                input {
-                    display: none;
+                .settings-option {
+                    @include flex(centerY, between);
+                    padding: 0 20px;
 
-                    & + .settings-toggle {
-                        @include flex(centerY, noShrink);
-                        width: 44px;
-                        height: 24px;
-                        background: var(--toggle-background);
-                        border-radius: 12px;
-                        margin-left: 16px;
-                        position: relative;
-                        cursor: pointer;
-                        transition: $toggle-transition;
-
-                        &::before {
-                            position: absolute;
-                            content: "";
-                            height: 18px;
-                            width: 18px;
-                            left: 3px;
-                            background-color: white;
-                            transition: $toggle-transition-before;
-                            border-radius: 9px;
-                        }
+                    &:not(:first-of-type) {
+                        margin-top: 4px;
+                    }
+                    &:first-of-type {
+                        margin-top: 10px;
                     }
 
-                    &:checked + .settings-toggle {
-                        background: var(--toggle-background-checked);
+                    input {
+                        display: none;
 
-                        &::before {
-                            transform: translateX(20px);
+                        & + .settings-toggle {
+                            @include flex(centerY, noShrink);
+                            width: 44px;
+                            height: 24px;
+                            background: var(--toggle-background);
+                            border-radius: 12px;
+                            margin-left: 16px;
+                            position: relative;
+                            cursor: pointer;
+                            transition: $toggle-transition;
+
+                            &::before {
+                                position: absolute;
+                                content: "";
+                                height: 18px;
+                                width: 18px;
+                                left: 3px;
+                                background-color: white;
+                                transition: $toggle-transition-before;
+                                border-radius: 9px;
+                            }
+                        }
+
+                        &:checked + .settings-toggle {
+                            background: var(--toggle-background-checked);
+
+                            &::before {
+                                transform: translateX(20px);
+                            }
                         }
                     }
                 }
