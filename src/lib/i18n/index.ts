@@ -1,7 +1,6 @@
 import { dev } from '$app/environment';
 import i18n, { Config } from 'sveltekit-i18n';
 import lang from './lang.json';
-
 import list from './list';
 
 export const defaultLocale = 'en';
