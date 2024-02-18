@@ -2,5 +2,15 @@
     "empty": "There's nothing here, consider adding something?",
     "group-placeholder": "New group",
     "item-placeholder": "New item",
-    "item-add": "Add item"
+    "item-add": "Add item",
+    "settings": {
+        "dark": "Dark",
+        "light": "Light",
+        "show-drag": "Show drag handles by default",
+        "show-remove-prompt": "Show a prompt that confirms an item's deletion",
+        "dehoist": "Pin checked items to the bottom of the list",
+        "merge-check-actions": "Merge check and uncheck actions into one",
+        "autofocus": "Automatically focus newly added groups and items",
+        "strike-completed": "Strikethrough completed items"
+    }
 }
