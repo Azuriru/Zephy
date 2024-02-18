@@ -3,20 +3,39 @@
     import { type Group, TodosHistory } from '$lib/util/list';
     import { capitalize, clone } from '$lib/util';
     import { persistibles } from '$lib/util/store';
-    import { locale, t } from '$lib/i18n';
-    import langs from '$lib/i18n/lang.json';
-    import { FontAwesome } from '$lib/components';
+    import { defaultLocale, locale, t } from '$lib/i18n';
+    import { MaterialSymbol } from '$lib/components';
 
-    const language = persistibles<string>('language', 'en');
+    const language = persistibles<string>('language', defaultLocale);
 
-    function onLanguageChange (language: string){
+    type SettingsState = {
+        theme: boolean,
+        show_drag: boolean,
+        show_remove_prompt: boolean,
+        dehoist: boolean,
+        merge_check_actions: boolean,
+        autofocus: boolean,
+        strike_completed: boolean
+    };
+    const settings = persistibles<SettingsState>('settings', {
+        theme: false,
+        show_drag: true,
+        show_remove_prompt: false,
+        dehoist: true,
+        merge_check_actions: false,
+        autofocus: true,
+        strike_completed: false
+    });
+
+    let settingsHidden = true;
+
+    function onLanguageChange(language: string) {
         $locale = language;
         $language = language;
     }
 
     type InputEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
 
-    let dark = false;
     const todosHistory = readable<TodosHistory>(null as never, (set) => {
         const hist = new TodosHistory(set, {
             groups: []
@@ -234,13 +253,27 @@
             edited
         });
     }
+
+    function onClick(e: MouseEvent) {
+        if (settingsHidden) return;
+
+        if (e.target instanceof HTMLElement) {
+            if (e.target.closest('.settings-button')) return;
+
+            if (!e.target.closest('.settings')) {
+                settingsHidden = true;
+            }
+        }
+    }
 </script>
 
-<div class="list-app" class:light={!dark}>
+<svelte:window on:click={onClick} />
+
+<div class="list-app" class:light={$settings.theme}>
     <div class="list">
         {#if !$todosHistory.state.groups.length}
             <div class="list-empty">
-                There's nothing here, consider adding something?
+                {$t('list.empty')}
             </div>
         {/if}
         {#each $todosHistory.state.groups as group, groupIndex (group.id)}
@@ -257,13 +290,13 @@
                     />
                     <div class="list-group-actions">
                         <button type="button" on:click={() => removeGroup(groupIndex)}>
-                            <FontAwesome name="trash-can" type="regular" />
+                            <MaterialSymbol name="delete" />
                         </button>
                         <button type="button" on:click={() => uncheckGroup(groupIndex)}>
-                            <FontAwesome name="square" type="regular" />
+                            <MaterialSymbol name="check_box_outline_blank" />
                         </button>
                         <button type="button" on:click={() => checkGroup(groupIndex)}>
-                            <FontAwesome name="square-check" type="regular" />
+                            <MaterialSymbol name="check_box" />
                         </button>
                     </div>
                 </div>
@@ -271,7 +304,7 @@
                     {@const { value, checked, timestamp } = item}
                     <div class="list-item" class:checked>
                         <div class="list-drag">
-                            <FontAwesome name="grip-vertical" />
+                            <MaterialSymbol name="drag_indicator" />
                         </div>
                         <label class="list-label">
                             <input
@@ -282,7 +315,7 @@
                             />
                             <div class="list-checkbox">
                                 {#if checked}
-                                    <FontAwesome name="check" />
+                                    <MaterialSymbol name="check" />
                                 {/if}
                             </div>
                             <div class="list-item-info">
@@ -306,7 +339,7 @@
                             class="list-item-remove"
                             on:click={() => removeItem(groupIndex, itemIndex)}
                         >
-                            <FontAwesome name="xmark" />
+                            <MaterialSymbol name="close" />
                         </button>
                     </div>
                 {/each}
@@ -316,7 +349,7 @@
                     on:click={() => addItem(groupIndex)}
                 >
                     <div class="list-plus">
-                        <FontAwesome name="plus" />
+                        <MaterialSymbol name="add_box" />
                     </div>
                     <span class="list-plus-text">{$t('list.item-add')}</span>
                 </button>
@@ -324,10 +357,50 @@
         {/each}
     </div>
 
+    <div class="settings" class:hidden={settingsHidden}>
+        <button type="button" class="settings-close" on:click={() => settingsHidden = true}>
+            <MaterialSymbol name="close" />
+        </button>
+        <div class="settings-options">
+            <label class="settings-option">
+                <div class="settings-key">
+                    {$t('list.settings.dark')}
+                </div>
+                <input
+                    type="checkbox"
+                    name="settings-checkbox"
+                    checked={$settings.theme}
+                    on:change={() => $settings.theme = !$settings.theme}
+                />
+                <div class="settings-toggle" />
+                <div class="settings-key">
+                    {$t('list.settings.light')}
+                </div>
+            </label>
+            {#each Object.keys($settings).slice(1) as key (key)}
+                <label class="settings-option">
+                    <div class="settings-key">
+                        {$t(`list.settings.${key.replaceAll('_', '-')}`)}
+                    </div>
+                    <input
+                        type="checkbox"
+                        name="settings-checkbox"
+                        checked={$settings[key]}
+                        on:change={() => $settings[key] = !$settings[key]}
+                    />
+                    <div class="settings-toggle" />
+                </label>
+            {/each}
+        </div>
+        <div class="settings-language">
+            <MaterialSymbol name="language" />
+        </div>
+    </div>
+
     <div class="toolbar">
         <div class="toolbar-left">
             <button type="button" on:click={() => addGroup()}>
-                <FontAwesome name="square-plus" type="regular" />
+                <MaterialSymbol name="format_list_bulleted_add" />
             </button>
             <button
                 type="button"
@@ -335,7 +408,7 @@
                 disabled={$todosHistory.index === 0}
                 on:click={() => $todosHistory.undo()}
             >
-                <FontAwesome name="arrow-rotate-left" />
+                <MaterialSymbol name="undo" />
             </button>
             <button
                 type="button"
@@ -343,37 +416,27 @@
                 disabled={$todosHistory.index === $todosHistory.events.length}
                 on:click={() => $todosHistory.redo()}
             >
-                <FontAwesome name="arrow-rotate-right" />
+                <MaterialSymbol name="redo" />
             </button>
         </div>
         <div class="toolbar-right">
             <!-- {#each Object.keys(langs) as language (language)}
                 <button type="button" on:click={() => onLanguageChange(language)}>{langs[language]}</button>
             {/each} -->
-            <input
-                type="checkbox"
-                name="item-checkbox"
-                on:change={() => dark = !dark}
-            />
             <button type="button" on:click={removeAll}>
-                <FontAwesome name="trash-can" type="regular" />
+                <MaterialSymbol name="delete" />
             </button>
             <button type="button" on:click={uncheckAll}>
-                <FontAwesome name="square" type="regular" />
+                <MaterialSymbol name="check_box_outline_blank" />
             </button>
             <button type="button" on:click={checkAll}>
-                <FontAwesome name="square-check" type="regular" />
+                <MaterialSymbol name="check_box" />
             </button>
-            <button type="button">
-                <FontAwesome name="sliders" />
+            <button type="button" class="settings-button" on:click={() => settingsHidden = !settingsHidden}>
+                <MaterialSymbol name="tune" />
             </button>
         </div>
     </div>
-
-    <div class="settings">
-        <div />
-    </div>
-
 </div>
 
 <style lang="scss">
@@ -392,6 +455,8 @@
         --checkbox-checked: #009d9d;
         --checkbox-border: transparent;
         --checkbox-border-checked: transparent;
+        --toggle-background: #272727;
+        --toggle-background-checked: #272727;
         --radius: 0;
     }
 
@@ -410,8 +475,9 @@
         --checkbox-border: var(--color);
         --checkbox-border-checked: var(--checkbox-checked);
         --checkbox-checked: #009d9d;
+        --toggle-background: #79cbcb;
+        --toggle-background-checked: var(--checkbox-checked);
         --radius: 4px;
-        font-weight: 500;
     }
 
     // Colors
@@ -430,8 +496,10 @@
     $checkbox-checked: var(--checkbox-checked);
     $checkbox-border: var(--checkbox-border);
     $checkbox-border-checked: var(--checkbox-border-checked);
-    $radius: var(--radius);
 
+    $toggle-transition: 0.5s background-color;
+    $toggle-transition-before: 0.5s transform;
+    $radius: var(--radius);
     $cube: 36px;
     $checkbox: 24px;
 
@@ -449,8 +517,92 @@
         height: 100%;
         background: $background;
         color: $color;
+
+        &.light {
+            font-weight: 500;
+        }
     }
 
+    .settings {
+        @include flex(column);
+        background: #bfe9e863;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        /* left: 0; */
+        right: 0;
+        z-index: 1;
+        backdrop-filter: blur(26px);
+        font-size: 14px;
+        transition: .5s transform, .5s box-shadow;
+
+        &:not(.hidden) {
+            box-shadow: 0px 0px 20px 4px #00000080;
+        }
+
+        &.hidden {
+            transform: translateX(100%);
+        }
+
+        .settings-close {
+            @include flex(center);
+            align-self: flex-end;
+            height: 36px;
+            width: 36px;
+            font-size: 24px;
+        }
+
+        .settings-options {
+            @include flex(column, one);
+
+            .settings-option {
+                @include flex(centerY, between);
+                padding: 0 20px;
+
+                &:not(:first-of-type) {
+                    margin-top: 4px;
+                }
+                &:first-of-type {
+                    margin-top: 10px;
+                }
+
+                input {
+                    display: none;
+
+                    & + .settings-toggle {
+                        @include flex(centerY, noShrink);
+                        width: 44px;
+                        height: 24px;
+                        background: var(--toggle-background);
+                        border-radius: 12px;
+                        margin-left: 16px;
+                        position: relative;
+                        cursor: pointer;
+                        transition: $toggle-transition;
+
+                        &::before {
+                            position: absolute;
+                            content: "";
+                            height: 18px;
+                            width: 18px;
+                            left: 3px;
+                            background-color: white;
+                            transition: $toggle-transition-before;
+                            border-radius: 9px;
+                        }
+                    }
+
+                    &:checked + .settings-toggle {
+                        background: var(--toggle-background-checked);
+
+                        &::before {
+                            transform: translateX(20px);
+                        }
+                    }
+                }
+            }
+        }
+    }
     .toolbar {
         @include flex(between);
         padding: 8px;
@@ -463,15 +615,22 @@
 
         .toolbar-left,
         .toolbar-right {
-            display: flex;
+            @include flex;
 
-            button:not(:first-of-type) {
-                margin-left: 8px;
+            button {
+                @include flex(center);
+                width: 26px;
+                height: 26px;
+                font-size: 26px;
+
+                &:not(:first-of-type) {
+                    margin-left: 8px;
+                }
             }
         }
 
         .history-control {
-            font-size: 20px;
+            // font-size: 20px;
 
             &:disabled {
                 filter: opacity(0.5);
@@ -518,7 +677,7 @@
 
         .list-group-actions {
             @include flex;
-            font-size: 18px;
+            font-size: 24px;
 
             button {
                 @include flex(center);
@@ -538,36 +697,36 @@
         border-radius: $radius;
         background: $item-background;
         transition: $item-transition;
+        margin-bottom: 4px;
 
         &:hover,
         &:active {
             background: $item-background-hover;
         }
 
-        // &:not(:nth-last-of-type(2)) {
-        margin-bottom: 4px;
-        // }
-
         &.checked {
             // order: 1;
-            // filter: opacity(0.5);
+            filter: opacity(0.5);
         }
 
         .list-drag {
             @include flex(center, noShrink);
             width: $cube;
             height: $cube;
+            font-size: $checkbox;
         }
 
         .list-label {
             @include flex(centerY, one);
-            input {
-                appearance: none;
+
+            input[type="checkbox"] {
+                display: none;
 
                 & + .list-checkbox {
                     @include flex(center, noShrink);
                     width: $checkbox;
                     height: $checkbox;
+                    font-size: $checkbox;
                     margin-right: 8px;
                     background: $checkbox-background;
                     border: 2px solid $checkbox-border;
@@ -602,6 +761,7 @@
             @include flex(center, noShrink);
             width: $cube;
             height: $cube;
+            font-size: $checkbox;
         }
     }
 
@@ -623,6 +783,7 @@
             @include flex(center, noShrink);
             width: $checkbox;
             height: $checkbox;
+            font-size: $checkbox;
             margin-right: 8px;
         }
 
