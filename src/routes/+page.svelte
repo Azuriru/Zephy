@@ -13,7 +13,8 @@
         ru: '🇷🇺',
         id: '🇮🇩',
         tl: '🇵🇭',
-        zh: '🇨🇳'
+        zh: '🇨🇳',
+        tr: '🇹🇷'
     };
 
     type SettingsState = {
@@ -35,7 +36,7 @@
         strike_completed: false
     });
 
-    let settingsHidden = false;
+    let settingsHidden = true;
     let languageHidden = true;
 
     function onLanguageChange(language: string) {
@@ -311,7 +312,8 @@
                 </div>
                 {#each items as item, itemIndex (item.id)}
                     {@const { value, checked, timestamp } = item}
-                    <div class="list-item" class:checked>
+                    {@const dehoist = $settings.dehoist && checked? 10 : 0}
+                    <div class="list-item" class:checked style:order={dehoist}>
                         <div class="list-drag">
                             <MaterialSymbol name="drag_indicator" />
                         </div>
