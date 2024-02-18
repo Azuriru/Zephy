@@ -1,0 +1,19 @@
+{
+    "empty": "Walang anuman dito, isaalang-alang ang pagdaragdag ng isang bagay?",
+    "group-placeholder": "Bagong grupo",
+    "item-placeholder": "Bagong item",
+    "item-add": "Magdagdag ng item",
+    "remove-prompt": "Confirm deletion of {x}?",
+    "remove-confirm": "Confirm",
+    "remove-decline": "Cancel",
+    "settings": {
+        "dark": "Madilim",
+        "light": "Liwanag",
+        "show-drag": "Ipakita ang mga drag handle bilang default",
+        "show-remove-prompt": "Magpakita ng prompt na nagkukumpirma sa pagtanggal ng isang item",
+        "dehoist": "I-pin ang mga item na may check sa ibaba ng listahan",
+        "merge-check-actions": "Pagsamahin ang check at alisan ng check sa isa",
+        "autofocus": "Awtomatikong ituon ang mga bagong idinagdag na grupo at item",
+        "strike-completed": "Strikethrough nakumpletong mga item"
+    }
+}

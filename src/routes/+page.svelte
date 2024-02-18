@@ -5,8 +5,16 @@
     import { persistibles } from '$lib/util/store';
     import { defaultLocale, locale, t } from '$lib/i18n';
     import { MaterialSymbol } from '$lib/components';
+    import langs from '$lib/i18n/lang.json';
 
     const language = persistibles<string>('language', defaultLocale);
+    const flags = {
+        en: '🇬🇧',
+        ru: '🇷🇺',
+        id: '🇮🇩',
+        tl: '🇵🇭',
+        zh: '🇨🇳'
+    };
 
     type SettingsState = {
         theme: boolean,
@@ -27,7 +35,8 @@
         strike_completed: false
     });
 
-    let settingsHidden = true;
+    let settingsHidden = false;
+    let languageHidden = true;
 
     function onLanguageChange(language: string) {
         $locale = language;
@@ -357,7 +366,6 @@
         {/each}
     </div>
 
-
     <div class="settings" class:hidden={settingsHidden}>
         <div class="settings-overlay" />
         <div class="settings-inner">
@@ -365,18 +373,22 @@
                 <MaterialSymbol name="close" />
             </button>
             <div class="settings-options">
-                <label class="settings-option">
-                    <div class="settings-key">
+                <label class="settings-option settings-option-theme">
+                    <div class="settings-key settings-key-theme">
                         {$t('list.settings.dark')}
                     </div>
-                    <input
-                        type="checkbox"
-                        name="settings-checkbox"
-                        checked={$settings.theme}
-                        on:change={() => $settings.theme = !$settings.theme}
-                    />
-                    <div class="settings-toggle" />
-                    <div class="settings-key">
+                    <div class="settings-theme-toggle">
+                        <MaterialSymbol name="dark_mode" />
+                        <input
+                            type="checkbox"
+                            name="settings-checkbox"
+                            checked={$settings.theme}
+                            on:change={() => $settings.theme = !$settings.theme}
+                        />
+                        <div class="settings-toggle settings-toggle-theme" />
+                        <MaterialSymbol name="light_mode" />
+                    </div>
+                    <div class="settings-key settings-key-theme">
                         {$t('list.settings.light')}
                     </div>
                 </label>
@@ -396,7 +408,19 @@
                 {/each}
             </div>
             <div class="settings-language">
-                <MaterialSymbol name="language" />
+                <div class="settings-language-popup" class:hidden={languageHidden}>
+                    {#each Object.keys(langs) as language (language)}
+                        <button type="button" on:click={() => onLanguageChange(language)}>
+                            <span style="font-family: Emoji">
+                                {flags[language]}
+                            </span>
+                            {langs[language]}
+                        </button>
+                    {/each}
+                </div>
+                <button type="button" class="settings-language-popup-button" on:click={() => languageHidden = !languageHidden}>
+                    <MaterialSymbol name="language" />
+                </button>
             </div>
         </div>
     </div>
@@ -424,9 +448,6 @@
             </button>
         </div>
         <div class="toolbar-right">
-            <!-- {#each Object.keys(langs) as language (language)}
-                <button type="button" on:click={() => onLanguageChange(language)}>{langs[language]}</button>
-            {/each} -->
             <button type="button" on:click={removeAll}>
                 <MaterialSymbol name="delete" />
             </button>
@@ -455,12 +476,14 @@
         --item-background-hover: #272727;
         --selection-background: #00ffff80;
         --toolbar-background: #20232c;
+        --settings-background: #31313163;
+        --settings-language-background: #2f2f2f;
         --checkbox-background: #ffffff1a;
         --checkbox-checked: #009d9d;
         --checkbox-border: transparent;
         --checkbox-border-checked: transparent;
-        --toggle-background: #272727;
-        --toggle-background-checked: #272727;
+        --toggle-background: #414141;
+        --toggle-background-checked: #8e8e8e;
         --radius: 0;
     }
 
@@ -475,11 +498,13 @@
         --item-background-hover: #96d6d6;
         --selection-background: #00ffff80;
         --toolbar-background: #009797;
+        --settings-background: #bfe9e863;
+        --settings-language-background: dbffff80;
         --checkbox-background: #0000000d;
         --checkbox-border: var(--color);
         --checkbox-border-checked: var(--checkbox-checked);
         --checkbox-checked: #009d9d;
-        --toggle-background: #79cbcb;
+        --toggle-background: #8c9f9f;
         --toggle-background-checked: var(--checkbox-checked);
         --radius: 4px;
     }
@@ -496,6 +521,8 @@
     $item-background-hover: var(--item-background-hover);
     $item-transition: background-color 0.5s;
     $toolbar-background: var(--toolbar-background);
+    $settings-background: var(--settings-background);
+    $settings-language-background: var(--settings-language-background);
     $checkbox-background: var(--checkbox-background);
     $checkbox-checked: var(--checkbox-checked);
     $checkbox-border: var(--checkbox-border);
@@ -506,6 +533,10 @@
     $radius: var(--radius);
     $cube: 36px;
     $checkbox: 24px;
+
+    button {
+        cursor: pointer;
+    }
 
     ::selection {
         background-color: $selection;
@@ -568,9 +599,11 @@
 
         .settings-inner {
             @include flex(column);
-            backdrop-filter: blur(5px);
-            background: #bfe9e863;
+            backdrop-filter: blur(12px);
+            background: $settings-background;
             transition: .5s transform, .5s box-shadow;
+            width: 80%;
+            padding: 12px;
 
             .settings-close {
                 @include flex(center);
@@ -585,13 +618,29 @@
 
                 .settings-option {
                     @include flex(centerY, between);
-                    padding: 0 20px;
+                    padding: 0 8px;
 
-                    &:not(:first-of-type) {
-                        margin-top: 4px;
+                    &.settings-option-theme {
+                        justify-content: center;
                     }
+                    &:not(:first-of-type) {
+                        margin-top: 8px;
+                    }
+
                     &:first-of-type {
                         margin-top: 10px;
+                        margin-bottom: 8px;
+                    }
+
+                    .settings-theme-toggle {
+                        display: flex;
+                        align-items: center;
+                        margin: 0 8px;
+                        font-size: 24px;
+
+                        .settings-toggle {
+                            margin: 0 8px;
+                        }
                     }
 
                     input {
@@ -603,10 +652,10 @@
                             height: 24px;
                             background: var(--toggle-background);
                             border-radius: 12px;
-                            margin-left: 16px;
                             position: relative;
                             cursor: pointer;
                             transition: $toggle-transition;
+                            margin-left: 16px;
 
                             &::before {
                                 position: absolute;
@@ -630,8 +679,48 @@
                     }
                 }
             }
+
+            .settings-language {
+                @include flex(column, endX, endY);
+
+                .settings-language-popup {
+                    @include flex(column);
+                    background: $settings-language-background;
+                    padding: 6px 0;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    margin-bottom: 12px;
+                    opacity: 1;
+                    transform: translateY(0);
+                    transition: .3s opacity, .3s transform;
+
+                    button {
+                        padding: 4px 12px;
+                        text-align: left;
+                        transition: 0.5s background;
+
+                        &:hover {
+                            background: $item-background-hover;
+                        }
+                    }
+
+                    &.hidden {
+                        opacity: 0;
+                        transform: translateY(10px);
+                        pointer-events: none;
+                    }
+                }
+
+                .settings-language-popup-button {
+                    @include flex(center);
+                    height: 36px;
+                    width: 36px;
+                    font-size: 28px;
+                }
+            }
         }
     }
+
     .toolbar {
         @include flex(between);
         padding: 8px;
