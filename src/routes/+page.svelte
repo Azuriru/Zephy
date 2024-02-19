@@ -14,6 +14,7 @@
         id: '🇮🇩',
         tl: '🇵🇭',
         zh: '🇨🇳',
+        ['zh-tw']: '🇹🇼',
         tr: '🇹🇷'
     };
 
@@ -375,22 +376,6 @@
                 <MaterialSymbol name="close" />
             </button>
             <div class="settings-options">
-                {#each Object.keys($settings).slice(1) as key (key)}
-                    <label class="settings-option">
-                        <div class="settings-key">
-                            {$t(`list.settings.${key.replaceAll('_', '-')}`)}
-                        </div>
-                        <input
-                            type="checkbox"
-                            name="settings-checkbox"
-                            checked={$settings[key]}
-                            on:change={() => $settings[key] = !$settings[key]}
-                        />
-                        <div class="settings-toggle" />
-                    </label>
-                {/each}
-            </div>
-            <div class="settings-language">
                 <label class="settings-option settings-option-theme">
                     <div class="settings-key settings-key-theme">
                         {$t('list.settings.dark')}
@@ -410,6 +395,22 @@
                         {$t('list.settings.light')}
                     </div>
                 </label>
+                {#each Object.keys($settings).slice(1) as key (key)}
+                    <label class="settings-option">
+                        <div class="settings-key">
+                            {$t(`list.settings.${key.replaceAll('_', '-')}`)}
+                        </div>
+                        <input
+                            type="checkbox"
+                            name="settings-checkbox"
+                            checked={$settings[key]}
+                            on:change={() => $settings[key] = !$settings[key]}
+                        />
+                        <div class="settings-toggle" />
+                    </label>
+                {/each}
+            </div>
+            <div class="settings-language">
                 <div class="settings-language-popup" class:hidden={languageHidden}>
                     {#each Object.keys(langs) as language (language)}
                         <button type="button" on:click={() => onLanguageChange(language)}>
