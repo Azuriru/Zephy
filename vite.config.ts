@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
 	css: {
@@ -18,6 +19,12 @@ export default defineConfig({
 		host: true
 	},
 	plugins: [
-		sveltekit()
+		sveltekit(),
+		VitePWA({
+			registerType: 'autoUpdate',
+			devOptions: {
+		  		enabled: true
+			}
+		})
 	]
 });
