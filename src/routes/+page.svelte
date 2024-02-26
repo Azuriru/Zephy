@@ -5,6 +5,7 @@
     import { persistibles } from '$lib/util/store';
     import { defaultLocale, locale, t } from '$lib/i18n';
     import { MaterialSymbol } from '$lib/components';
+    import Input from '$lib/components/ListInput.svelte';
     import langs from '$lib/i18n/lang.json';
 
     const language = persistibles<string>('language', defaultLocale);
@@ -110,6 +111,12 @@
                 value: capitalize(e.currentTarget.value)
             }
         });
+    }
+
+    function onInputEnter(e: KeyboardEvent, groupIndex: number) {
+        if (e.key === 'Enter') {
+            addItem(groupIndex);
+        }
     }
 
     function checkItem(groupIndex: number, itemIndex: number) {
@@ -331,13 +338,11 @@
                                 {/if}
                             </div>
                             <div class="list-item-info">
-                                <input
-                                    class="list-item-name"
-                                    type="text"
-                                    name="item-name"
+                                <Input
                                     placeholder={$t('list.item-placeholder')}
                                     {value}
-                                    on:input={(e) => editItem(e, groupIndex, itemIndex)}
+                                    onInput={(e) => editItem(e, groupIndex, itemIndex)}
+                                    onKeydown={(e) => onInputEnter(e, groupIndex)}
                                 />
                                 {#if timestamp}
                                     <span class="list-item-timestamp">
@@ -485,8 +490,8 @@
         --checkbox-checked: #009d9d;
         --checkbox-border: transparent;
         --checkbox-border-checked: transparent;
-        --toggle-background: #414141;
-        --toggle-background-checked: #8e8e8e;
+        --toggle-background: #515c5c;
+        --toggle-background-checked: var(--checkbox-checked);
         --radius: 0;
     }
 
@@ -502,7 +507,7 @@
         --selection-background: #00ffff80;
         --toolbar-background: #009797;
         --settings-background: #bfe9e863;
-        --settings-language-background: dbffff80;
+        --settings-language-background: #dbffff80;
         --checkbox-background: #0000000d;
         --checkbox-border: var(--color);
         --checkbox-border-checked: var(--checkbox-checked);
