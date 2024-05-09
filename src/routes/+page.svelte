@@ -1,6 +1,7 @@
 <script lang="ts">
     import { readable } from 'svelte/store';
-    import { type Group, TodosHistory } from '$lib/util/list';
+    import type { Group } from '$lib/util/list';
+    import { TodosHistory } from '$lib/util/list';
     import { capitalize, clone } from '$lib/util';
     import { persistibles } from '$lib/util/store';
     import { defaultLocale, locale, t } from '$lib/i18n';
@@ -20,13 +21,13 @@
     };
 
     type SettingsState = {
-        theme: boolean,
-        show_drag: boolean,
-        show_remove_prompt: boolean,
-        dehoist: boolean,
-        merge_check_actions: boolean,
-        autofocus: boolean,
-        strike_completed: boolean
+        theme: boolean;
+        show_drag: boolean;
+        show_remove_prompt: boolean;
+        dehoist: boolean;
+        merge_check_actions: boolean;
+        autofocus: boolean;
+        strike_completed: boolean;
     };
     const settings = persistibles<SettingsState>('settings', {
         theme: false,
@@ -130,7 +131,7 @@
             edited: {
                 ...$todosHistory.state.groups[groupIndex].items[itemIndex],
                 checked: true,
-                timestamp:  Date.now()
+                timestamp: Date.now()
             }
         });
     }
@@ -235,7 +236,7 @@
     }
 
     function checkAll() {
-        if ($todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+        if ($todosHistory.state.groups.every((group) => group.items.every((item) => item.checked))) return;
 
         const edited: Group[] = clone($todosHistory.state.groups);
 
@@ -254,7 +255,7 @@
     }
 
     function uncheckAll() {
-        if (!$todosHistory.state.groups.every(group => group.items.every((item) => item.checked))) return;
+        if (!$todosHistory.state.groups.every((group) => group.items.every((item) => item.checked))) return;
 
         const edited: Group[] = clone($todosHistory.state.groups);
 
