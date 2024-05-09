@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Sae Ma Eul",
+        "type": "Korean BBQ",
+        "map": "https://g.co/kgs/SLjMXT6",
+        "location": "SS15, Subang Jaya",
+        "info": ""
+    },
+    {
+        "name": "Feng Wang Fu",
+        "type": "Chinese Hotpot",
+        "map": "https://g.co/kgs/1s2gugf",
+        "location": "Bukit Bintang",
+        "info": "https://www.fwfhotpot.com/"
+    },
+    {
+        "name": "Kimiya",
+        "type": "Japanese Restaurant",
+        "map": "https://g.co/kgs/zZGrcsw",
+        "location": "Jalan Klang Lama",
+        "info": ""
+    },
+    {
+        "name": "Lemon Garden",
+        "type": "Buffet",
+        "map": "https://g.co/kgs/tASjYbZ",
+        "location": "Shangri-La",
+        "info": ""
+    },
+    {
+        "name": "Kwee Zeen",
+        "type": "Buffet",
+        "map": "https://g.co/kgs/tbwmiAm",
+        "location": "Sofitel, Damansara",
+        "info": ""
+    },
+    {
+        "name": "Jyu Jyu Yakiniku",
+        "type": "Japanese Grilled Buffet",
+        "map": "https://g.co/kgs/t6ni4fX",
+        "location": "Gardens Mall | Lot 10",
+        "info": ""
+    },
+    {
+        "name": "Fusion Omakase",
+        "type": "Japanese Special Restaurant",
+        "map": "https://maps.app.goo.gl/hpjhAAwFeDk4B5mG7",
+        "location": "Old Klang Road",
+        "info": "https://www.facebook.com/makiisushi.my/"
+    },
+    {
+        "name": "Seo Gung",
+        "type": "Korean BBQ",
+        "map": "https://g.co/kgs/Rs64U3n",
+        "location": "Petaling Jaya",
+        "info": ""
+    },
+    {
+        "name": "Portofino",
+        "type": "Italian Cuisine",
+        "map": "https://g.co/kgs/LqTwmMz",
+        "location": "Bangsar South",
+        "info": "https://www.portofino.my/portofino"
+    },
+    {
+        "name": "Umi Omakase",
+        "type": "Japanse Omakase Style",
+        "map": "https://g.co/kgs/NnrTfMx",
+        "location": "Bangsar South",
+        "info": "https://www.umi-omakase.com/usr/pagesubfull.aspx?pgid=11&lang=en"
+    }
+]
