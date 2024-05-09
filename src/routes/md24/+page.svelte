@@ -112,7 +112,7 @@
                     <div class="wheel-item {color}" style:transform="rotate({deg}deg)">
                         <div style:transform="rotate(-90deg)">
                             {segment.name === 'null'
-                                ? 'She choose'
+                                ? 'You choose'
                                 : segment.name.split(' ').map((string) => string.slice(0, 1)).join('')}
                         </div>
                     </div>
