@@ -19,15 +19,15 @@
     };
     const segments: (NullChoice | Choice)[] = choices.map((item) => ({
         ...item,
-        ratio: 2
+        ratio: 1
     }));
     segments.splice(segments.length / 2, 0, {
         name: 'null',
-        ratio: 3
+        ratio: 2
     });
     segments.push({
         name: 'null',
-        ratio: 3
+        ratio: 2
     });
 
     const colors = ['#ffffff80', '#ffcf9033'] as const;
