@@ -205,8 +205,8 @@
 
     .wheel-area {
         @include flex(center);
-        width: 384px;
-        height: 384px;
+        width: 374px;
+        height: 374px;
         padding: 40px;
         position: relative;
         flex-shrink: 0;
@@ -279,7 +279,7 @@
 
         .frame {
             max-width: 100%;
-            width: 370px;
+            width: 360px;
             user-select: none;
             pointer-events: none;
             position: absolute;
