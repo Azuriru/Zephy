@@ -172,6 +172,7 @@
         justify-content: safe center;
         align-items: safe center;;
         overflow: auto;
+        padding: 40px 0;
     }
 
     .results {
@@ -192,6 +193,7 @@
         align-items: center;
         flex-direction: column;
         line-height: 30px;
+        margin-bottom: 40px;
 
         .result {
             display: flex;
