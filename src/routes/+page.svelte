@@ -3,13 +3,13 @@
     import type { Group } from '$lib/util/list';
     import { TodosHistory } from '$lib/util/list';
     import { capitalize, clone } from '$lib/util';
-    import { persistibles } from '$lib/util/store';
+    import { persistible } from '$lib/util/store';
     import { defaultLocale, locale, t } from '$lib/i18n';
     import { MaterialSymbol } from '$lib/components';
     import Input from '$lib/components/ListInput.svelte';
     import langs from '$lib/i18n/lang.json';
 
-    const language = persistibles<string>('language', defaultLocale);
+    const language = persistible<string>('language', defaultLocale);
     const flags = {
         en: '🇬🇧',
         ru: '🇷🇺',
@@ -29,7 +29,7 @@
         autofocus: boolean;
         strike_completed: boolean;
     };
-    const settings = persistibles<SettingsState>('settings', {
+    const settings = persistible<SettingsState>('settings', {
         theme: false,
         show_drag: true,
         show_remove_prompt: false,
@@ -321,7 +321,7 @@
                 </div>
                 {#each items as item, itemIndex (item.id)}
                     {@const { value, checked, timestamp } = item}
-                    {@const dehoist = $settings.dehoist && checked? 10 : 0}
+                    {@const dehoist = $settings.dehoist && checked ? 10 : 0}
                     <div class="list-item" class:checked style:order={dehoist}>
                         <div class="list-drag">
                             <MaterialSymbol name="drag_indicator" />
