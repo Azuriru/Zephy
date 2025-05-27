@@ -16,9 +16,12 @@
             return `${nosix}${prefix}${dash}${random}`;
         })
         .join('\n');
-    $: output = Array.from(new Set(input.split('\n')))
+    $: output = new Array(new Set(input
+        .split('\n')
         .map((line) => {
-            if (!line || (/[a-z]/).test(line)) return;
+            line = line.replace(/[^0-9]/g, '');
+
+            if (!line) return;
 
             line = line.replace(/^60|^0/, '');
 
@@ -29,9 +32,9 @@
                 .replaceAll('-', '')
                 .replaceAll(' ', '');
         })
-        .filter(Boolean)
-        .join('\n');
-    $: linecount = output.split('\n').length;
+        .filter(Boolean)))
+    .join('\n')
+    $: linecount = output.split('\n').filter(Boolean).length;
     $: download = new Blob([output], { type: 'text/plain' });
 </script>
 
