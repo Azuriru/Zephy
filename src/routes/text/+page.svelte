@@ -16,7 +16,7 @@
             return `${nosix}${prefix}${dash}${random}`;
         })
         .join('\n');
-    $: output = new Array(new Set(input
+    $: output = Array.from(new Set(input
         .split('\n')
         .map((line) => {
             line = line.replace(/[^0-9]/g, '');
