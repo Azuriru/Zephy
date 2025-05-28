@@ -1,7 +1,7 @@
 <script lang="ts">
     const copy = (str: string) => navigator.clipboard.writeText(str);
 
-    let filename = new Date().toLocaleDateString();
+    let filename = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
     let input = '';
 
     $: output = Array.from(new Set(
