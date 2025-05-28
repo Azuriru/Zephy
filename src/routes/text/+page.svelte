@@ -1,9 +1,24 @@
 <script lang="ts">
     const copy = (str: string) => navigator.clipboard.writeText(str);
+    const formatTimestamp = (date: Date) => {
+        const dd = date.getDate();
+        const mm = date.getMonth() + 1;
+        const yyyy = date.getFullYear();
 
-    let filename = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`;
+        const hh = date.getHours();
+        const min = date.getMinutes();
+
+        return `${dd}/${mm}/${yyyy} ${hh}:${min} ${hh < 12 ? 'AM' : 'PM'}`;
+    };
+
+    let now = new Date();
     let input = '';
 
+    setInterval(() => {
+        now = new Date();
+    }, 60 * 1000);
+
+    $: filename = formatTimestamp(now);
     $: output = Array.from(new Set(
         input
             .split('\n')
