@@ -35,7 +35,7 @@
         .filter(Boolean)
         .filter(line => {
             const { length } = line;
-            if (length < 10 || length > 11) return false;
+            return length >= 10 && length <= 11;
         })
     ))
     .join('\n')
