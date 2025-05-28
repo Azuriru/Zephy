@@ -32,7 +32,12 @@
                 .replaceAll('-', '')
                 .replaceAll(' ', '');
         })
-        .filter(Boolean)))
+        .filter(Boolean)
+        .filter(line => {
+            const { length } = line;
+            if (length < 10 || length > 11) return false;
+        })
+    ))
     .join('\n')
     $: linecount = output.split('\n').filter(Boolean).length;
     $: download = new Blob([output], { type: 'text/plain' });
