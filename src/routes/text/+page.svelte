@@ -36,7 +36,7 @@
     <textarea value={output} rows={40} />
     <div class="tools">
         <span>Numbers: {linecount}</span>
-        <a href={URL.createObjectURL(download)} download="{filename}.txt" on:click={() => setTimeout(() => input = '', 500)}>Download</a>
+        <a href={URL.createObjectURL(download)} download="{filename}.txt">Download</a>
         <button type="button" on:click={() => (copy(output), input = '')}>Copy</button>
     </div>
 </div>
