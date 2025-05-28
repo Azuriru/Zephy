@@ -1,33 +1,38 @@
 <script lang="ts">
     const copy = (str: string) => navigator.clipboard.writeText(str);
 
-    let filename = (new Date).toLocaleDateString();
+    let filename = new Date().toLocaleDateString();
     let input = '';
-    $: output = Array.from(new Set(input
-        .split('\n')
-        .map((line) => {
-            line = line.replace(/[^0-9]/g, '');
 
-            if (!line) return;
+    $: output = Array.from(new Set(
+        input
+            .split('\n')
+            .map((line) => {
+                line = line.replace(/[^0-9]/g, '');
 
-            line = line.replace(/^60|^0/, '');
+                if (!line) return;
 
-            if (!line.startsWith('1')) return;
+                line = line.replace(/^60|^0/, '');
 
-            return line
-                .replace(/^/, '0')
-                .replaceAll('-', '')
-                .replaceAll(' ', '');
-        })
-        .filter(Boolean)
-        .filter(line => {
-            const { length } = line;
-            return length >= 10 && length <= 11;
-        })
+                if (!line.startsWith('1')) return;
+
+                return line
+                    .replace(/^/, '0')
+                    .replaceAll('-', '')
+                    .replaceAll(' ', '');
+            })
+            .filter((line) => {
+                if (!line) return false;
+
+                const { length } = line;
+
+                return length >= 10 && length <= 11;
+            })
     ))
-    .join('\n')
+        .join('\n');
     $: linecount = output.split('\n').filter(Boolean).length;
     $: download = new Blob([output], { type: 'text/plain' });
+
 </script>
 
 <div class="wrapper">
@@ -36,17 +41,17 @@
     <textarea value={output} rows={40} />
     <div class="tools">
         <span>Numbers: {linecount}</span>
-        <a href={URL.createObjectURL(download)} download="{filename}.txt">Download</a>
+        <a href={URL.createObjectURL(download)} download="{filename}.txt" on:click={() => setTimeout(() => input = '', 500)}>Download</a>
         <button type="button" on:click={() => (copy(output), input = '')}>Copy</button>
     </div>
 </div>
 
 <style lang="scss">
     .wrapper {
-        height: 100%;
         @include flex(column, centerX, centerY);
         gap: 8px;
         width: 100%;
+        height: 100%;
         overflow: auto;
     }
 
