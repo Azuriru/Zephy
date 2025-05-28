@@ -2,20 +2,7 @@
     const copy = (str: string) => navigator.clipboard.writeText(str);
 
     let filename = (new Date).toLocaleDateString();
-    let input = new Array(30)
-        .fill(null)
-        .map((_) => {
-            if (Math.random() < 0.2) return '';
-
-            const random = Array(7).fill(null).map(() => Math.floor(Math.random() * 10)).join('');
-            const six = Math.random() < 0.5 ? '60' : '0';
-            const nosix = Math.random() < 0.5 ? six : '';
-            const dash = Math.random() < 0.5 ? '-' : '';
-            const prefix = `${Math.random() < 0.5 ? '1' : '3'}${Math.floor(Math.random() * 10)}`;
-
-            return `${nosix}${prefix}${dash}${random}`;
-        })
-        .join('\n');
+    let input = '';
     $: output = Array.from(new Set(input
         .split('\n')
         .map((line) => {
