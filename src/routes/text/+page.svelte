@@ -11,14 +11,9 @@
         return `${dd}/${mm}/${yyyy} ${hh}:${min} ${hh < 12 ? 'AM' : 'PM'}`;
     };
 
-    let now = new Date();
     let input = '';
+    let filename = formatTimestamp(new Date());
 
-    setInterval(() => {
-        now = new Date();
-    }, 60 * 1000);
-
-    $: filename = formatTimestamp(now);
     $: output = Array.from(new Set(
         input
             .split('\n')
