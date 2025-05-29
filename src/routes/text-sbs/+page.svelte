@@ -50,11 +50,11 @@
     <div class="in-out">
         <div class="textarea">
             Input
-            <textarea bind:value={input} rows={50} />
+            <textarea bind:value={input} rows={40} />
         </div>
         <div class="textarea">
             Output
-            <textarea value={output} rows={50} />
+            <textarea value={output} rows={40} />
         </div>
     </div>
     <div class="tools">
