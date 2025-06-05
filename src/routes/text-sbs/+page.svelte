@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { persistible } from '$lib/util/store';
+
     const copy = (str: string) => navigator.clipboard.writeText(str);
     const formatTimestamp = (date: Date) => {
         const dd = date.getDate();
@@ -13,7 +15,7 @@
 
     let input = '';
     let filename = formatTimestamp(new Date());
-    let six = false;
+    let six = persistible('six', false);
 
     $: output = Array.from(new Set(
         input
@@ -28,7 +30,7 @@
                 if (!line.startsWith('1')) return;
 
                 return line
-                    .replace(/^/, six ? '60' : '0')
+                    .replace(/^/, $six ? '60' : '0')
                     .replaceAll('-', '')
                     .replaceAll(' ', '');
             })
@@ -40,7 +42,7 @@
                 let min = 10;
                 let max = 11;
 
-                if (six) {
+                if ($six) {
                     min += 1;
                     max += 1;
                 }
@@ -59,7 +61,7 @@
         <input placeholder="Filename" bind:value={filename} />
         <label class="six-zero">
             60
-            <input type="checkbox" bind:checked={six} />
+            <input type="checkbox" bind:checked={$six} />
         </label>
     </div>
     <div class="in-out">
