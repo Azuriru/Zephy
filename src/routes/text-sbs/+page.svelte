@@ -13,6 +13,7 @@
 
     let input = '';
     let filename = formatTimestamp(new Date());
+    let six = true;
 
     $: output = Array.from(new Set(
         input
@@ -27,7 +28,7 @@
                 if (!line.startsWith('1')) return;
 
                 return line
-                    .replace(/^/, '0')
+                    .replace(/^/, six ? '60' : '0')
                     .replaceAll('-', '')
                     .replaceAll(' ', '');
             })
@@ -36,7 +37,15 @@
 
                 const { length } = line;
 
-                return length >= 10 && length <= 11;
+                let min = 10;
+                let max = 11;
+
+                if (six) {
+                    min += 1;
+                    max += 1;
+                }
+
+                return length >= min && length <= max;
             })
     ))
         .join('\n');
@@ -46,7 +55,13 @@
 </script>
 
 <div class="wrapper">
-    <input bind:value={filename} />
+    <div class="settings">
+        <input placeholder="Filename" bind:value={filename} />
+        <label class="six-zero">
+            60
+            <input type="checkbox" bind:checked={six} />
+        </label>
+    </div>
     <div class="in-out">
         <div class="textarea">
             Input
@@ -78,6 +93,18 @@
         overflow: auto;
     }
 
+    .settings {
+        @include flex();
+        width: 80%;
+        gap: 8px;
+        margin: auto;
+
+        .six-zero {
+            @include flex();
+            gap: 4px;
+        }
+    }
+
     .in-out {
         @include flex();
         width: 80%;
@@ -99,7 +126,7 @@
     input {
         background: white;
         color: black;
-        width: 33%;
+        width: 100%;
         border: 1px solid black;
         padding: 0 2px;
     }
