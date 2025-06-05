@@ -13,7 +13,7 @@
 
     let input = '';
     let filename = formatTimestamp(new Date());
-    let six = true;
+    let six = false;
 
     $: output = Array.from(new Set(
         input
