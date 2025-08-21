@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      clipboard-polyfill:
+        specifier: ^4.1.1
+        version: 4.1.1
       eslint-plugin-antfu:
         specifier: ^2
         version: 2.7.0(eslint@8.57.1)
@@ -1574,6 +1577,9 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
+  clipboard-polyfill@4.1.1:
+    resolution: {integrity: sha512-nbvNLrcX0zviek5QHLFRAaLrx8y/s8+RF2stH43tuS+kP5XlHMrcD0UGBWq43Hwp6WuuK7KefRMP56S45ibZkA==}
+
   code-red@1.0.4:
     resolution: {integrity: sha512-7qJWqItLA8/VPVlKJlFXU+NBlo/qyfs39aJcuMT/2ere32ZqvF5OSxgdM5xOfJJ7O429gg2HM47y8v9P+9wrNw==}
 
@@ -2885,6 +2891,7 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+    deprecated: The work that was done in this beta branch won't be included in future versions
 
   sourcemap-codec@1.4.8:
     resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
@@ -4851,6 +4858,8 @@ snapshots:
       readdirp: 4.1.2
 
   chownr@2.0.0: {}
+
+  clipboard-polyfill@4.1.1: {}
 
   code-red@1.0.4:
     dependencies:
