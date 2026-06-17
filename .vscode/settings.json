@@ -8,12 +8,5 @@
     "svelte.plugin.svelte.compilerWarnings": {
         "css-unused-selector": "ignore",
         "a11y-autofocus": "ignore",
-    },
-    "prettier": {
-        "htmlWhitespaceSensitivity": "ignore",
-        "tabWidth": 4,
-        "bracketSameLine": false,
-        "singleQuote": true,
-        // "printWidth": 160
     }
 }
